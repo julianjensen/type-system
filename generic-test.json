@@ -1,0 +1,668 @@
+{
+    "kind": "SourceFile",
+    "locals": [
+        {
+            "name": "identity",
+            "decls": [
+                {
+                    "decl": "identity: <T>( arg: T ) => T",
+                    "type": {
+                        "type": "function",
+                        "definition": {
+                            "typeParameters": [
+                                {
+                                    "name": "T",
+                                    "default": "number"
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    "name": "arg"
+                                }
+                            ],
+                            "returns": {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        }
+                    },
+                    "kind": "VariableDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "strIdent",
+            "decls": [
+                {
+                    "decl": "strIdent: { CallSignature<T extends TypeLiteral><T extends TypeLiteral> }",
+                    "type": {
+                        "type": "typeliteral",
+                        "members": [
+                            {
+                                "type": "function",
+                                "definition": {
+                                    "typeParameters": [
+                                        {
+                                            "name": "T",
+                                            "constraint": {
+                                                "type": {
+                                                    "type": "typeliteral",
+                                                    "members": [
+                                                        {
+                                                            "type": "property",
+                                                            "propKey": "length",
+                                                            "typeName": "number",
+                                                            "kind": "PropertySignature"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "parameters": [
+                                        {
+                                            "type": {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            },
+                                            "name": "arg"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                },
+                                "kind": "CallSignature"
+                            }
+                        ]
+                    },
+                    "kind": "VariableDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "HasLength",
+            "decls": [
+                {
+                    "decl": "HasLength: { length: number }",
+                    "type": {
+                        "type": "typeliteral",
+                        "members": [
+                            {
+                                "type": "property",
+                                "propKey": "length",
+                                "typeName": "number",
+                                "kind": "PropertySignature"
+                            }
+                        ]
+                    },
+                    "kind": "TypeAliasDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "twoTyped",
+            "decls": [
+                {
+                    "decl": "twoTyped: <S extends HasLength, T extends HasLength>( a: S, b: T ) => number",
+                    "type": {
+                        "type": "function",
+                        "definition": {
+                            "typeParameters": [
+                                {
+                                    "name": "S",
+                                    "constraint": {
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": "HasLength"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "T",
+                                    "constraint": {
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": "HasLength"
+                                        }
+                                    }
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": {
+                                        "type": "reference",
+                                        "typeName": "S"
+                                    },
+                                    "name": "a"
+                                },
+                                {
+                                    "type": {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    "name": "b"
+                                }
+                            ],
+                            "returns": "number"
+                        }
+                    },
+                    "kind": "TypeAliasDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "Hmmm",
+            "decls": [
+                {
+                    "decl": "Hmmm<S>",
+                    "kind": "InterfaceDeclaration",
+                    "typeParameters": [
+                        {
+                            "name": "S"
+                        }
+                    ],
+                    "members": [
+                        {
+                            "name": "S",
+                            "decls": [
+                                {
+                                    "decl": "S",
+                                    "kind": "TypeParameter"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Call",
+                            "decls": [
+                                {
+                                    "decl": "( x: S ): S",
+                                    "parameters": [
+                                        {
+                                            "type": {
+                                                "type": "reference",
+                                                "typeName": "S"
+                                            },
+                                            "name": "x"
+                                        }
+                                    ],
+                                    "returns": {
+                                        "type": "reference",
+                                        "typeName": "S"
+                                    },
+                                    "type": "function",
+                                    "kind": "CallSignature"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "explicit",
+            "decls": [
+                {
+                    "decl": "explicit: Hmmm<string>",
+                    "type": {
+                        "type": "reference",
+                        "typeName": "Hmmm",
+                        "typeArguments": [
+                            "string"
+                        ]
+                    },
+                    "kind": "VariableDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "X",
+            "decls": [
+                {
+                    "decl": "X<S, T>",
+                    "kind": "ClassDeclaration",
+                    "typeParameters": [
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        }
+                    ],
+                    "members": [
+                        {
+                            "name": "S",
+                            "decls": [
+                                {
+                                    "decl": "S",
+                                    "kind": "TypeParameter"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "T",
+                            "decls": [
+                                {
+                                    "decl": "T",
+                                    "kind": "TypeParameter"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Y",
+            "decls": [
+                {
+                    "decl": "Y<U>",
+                    "heritage": [
+                        {
+                            "name": "X",
+                            "typeArguments": [
+                                "U",
+                                "number"
+                            ]
+                        }
+                    ],
+                    "kind": "ClassDeclaration",
+                    "typeParameters": [
+                        {
+                            "name": "U"
+                        }
+                    ],
+                    "members": [
+                        {
+                            "name": "U",
+                            "decls": [
+                                {
+                                    "decl": "U",
+                                    "kind": "TypeParameter"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "_y",
+            "decls": [
+                {
+                    "decl": "_y",
+                    "kind": "VariableDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "abc",
+            "decls": [
+                {
+                    "decl": "abc<S, T>: { CallSignature }",
+                    "type": {
+                        "type": "typeliteral",
+                        "members": [
+                            {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": {
+                                                "type": "reference",
+                                                "typeName": "S"
+                                            },
+                                            "name": "s"
+                                        },
+                                        {
+                                            "type": {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            },
+                                            "name": "t"
+                                        }
+                                    ],
+                                    "returns": {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                },
+                                "kind": "CallSignature"
+                            }
+                        ]
+                    },
+                    "kind": "TypeAliasDeclaration",
+                    "typeParameters": [
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "def",
+            "decls": [
+                {
+                    "decl": "def<U>( f: abc<U, number> ): abc<U, number>",
+                    "typeParameters": [
+                        {
+                            "name": "U"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "abc",
+                                "typeArguments": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "U"
+                                    },
+                                    "number"
+                                ]
+                            },
+                            "name": "f"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "abc",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "U"
+                            },
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "FunctionDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "use",
+            "decls": [
+                {
+                    "decl": "use()",
+                    "type": "function",
+                    "kind": "FunctionDeclaration"
+                }
+            ]
+        },
+        {
+            "name": "Abc",
+            "decls": [
+                {
+                    "decl": "Abc",
+                    "kind": "InterfaceDeclaration",
+                    "members": [
+                        {
+                            "name": "Pick",
+                            "decls": [
+                                {
+                                    "decl": "Pick<T, K extends keyof T>(): { [ P in K ]: T[P] }",
+                                    "typeParameters": [
+                                        {
+                                            "name": "T",
+                                            "default": {
+                                                "type": "array",
+                                                "elementType": "string"
+                                            }
+                                        },
+                                        {
+                                            "name": "K",
+                                            "constraint": {
+                                                "type": {
+                                                    "keyOf": true,
+                                                    "type": {
+                                                        "type": "reference",
+                                                        "typeName": "T"
+                                                    },
+                                                    "kind": "TypeOperator"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "returns": {
+                                        "type": "mapped",
+                                        "definition": {
+                                            "type": {
+                                                "type": "indexed",
+                                                "objectType": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "indexType": {
+                                                    "type": "reference",
+                                                    "typeName": "P"
+                                                }
+                                            },
+                                            "typeParameter": {
+                                                "name": "P",
+                                                "constraint": {
+                                                    "type": {
+                                                        "type": "reference",
+                                                        "typeName": "K"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "type": "function",
+                                    "kind": "MethodSignature"
+                                },
+                                {
+                                    "decl": "Pick<T, K extends T>(): { [ P in K ]: T[P] }",
+                                    "typeParameters": [
+                                        {
+                                            "name": "T"
+                                        },
+                                        {
+                                            "name": "K",
+                                            "constraint": {
+                                                "type": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "returns": {
+                                        "type": "mapped",
+                                        "definition": {
+                                            "type": {
+                                                "type": "indexed",
+                                                "objectType": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "indexType": {
+                                                    "type": "reference",
+                                                    "typeName": "P"
+                                                }
+                                            },
+                                            "typeParameter": {
+                                                "name": "P",
+                                                "constraint": {
+                                                    "type": {
+                                                        "type": "reference",
+                                                        "typeName": "K"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "type": "function",
+                                    "kind": "MethodSignature"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Readonly",
+                            "decls": [
+                                {
+                                    "decl": "Readonly<T>(): { [ P in keyof T ]: T[P] }",
+                                    "typeParameters": [
+                                        {
+                                            "name": "T"
+                                        }
+                                    ],
+                                    "returns": {
+                                        "type": "mapped",
+                                        "definition": {
+                                            "type": {
+                                                "type": "indexed",
+                                                "objectType": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "indexType": {
+                                                    "type": "reference",
+                                                    "typeName": "P"
+                                                }
+                                            },
+                                            "typeParameter": {
+                                                "name": "P",
+                                                "constraint": {
+                                                    "type": {
+                                                        "keyOf": true,
+                                                        "type": {
+                                                            "type": "reference",
+                                                            "typeName": "T"
+                                                        },
+                                                        "kind": "TypeOperator"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "type": "function",
+                                    "kind": "MethodSignature"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "addEventListener",
+                            "decls": [
+                                {
+                                    "decl": "addEventListener<K extends keyof ApplicationCacheEventMap>( type: K, listener: ( this: ApplicationCache, ev: ApplicationCacheEventMap[K] ) => any, options?: boolean | AddEventListenerOptions ): void",
+                                    "typeParameters": [
+                                        {
+                                            "name": "K",
+                                            "constraint": {
+                                                "type": {
+                                                    "keyOf": true,
+                                                    "type": {
+                                                        "type": "reference",
+                                                        "typeName": "ApplicationCacheEventMap"
+                                                    },
+                                                    "kind": "TypeOperator"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "parameters": [
+                                        {
+                                            "type": {
+                                                "type": "reference",
+                                                "typeName": "K"
+                                            },
+                                            "name": "type"
+                                        },
+                                        {
+                                            "type": {
+                                                "type": "function",
+                                                "definition": {
+                                                    "parameters": [
+                                                        {
+                                                            "type": {
+                                                                "type": "reference",
+                                                                "typeName": "ApplicationCache"
+                                                            },
+                                                            "name": "this"
+                                                        },
+                                                        {
+                                                            "type": {
+                                                                "type": "indexed",
+                                                                "objectType": {
+                                                                    "type": "reference",
+                                                                    "typeName": "ApplicationCacheEventMap"
+                                                                },
+                                                                "indexType": {
+                                                                    "type": "reference",
+                                                                    "typeName": "K"
+                                                                }
+                                                            },
+                                                            "name": "ev"
+                                                        }
+                                                    ],
+                                                    "returns": "any"
+                                                }
+                                            },
+                                            "name": "listener"
+                                        },
+                                        {
+                                            "type": {
+                                                "type": "union",
+                                                "types": [
+                                                    "boolean",
+                                                    {
+                                                        "type": "reference",
+                                                        "typeName": "AddEventListenerOptions"
+                                                    }
+                                                ]
+                                            },
+                                            "name": "options",
+                                            "optional": true
+                                        }
+                                    ],
+                                    "returns": "void",
+                                    "type": "function",
+                                    "kind": "MethodSignature"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "topLevelNames": [
+        "Abc",
+        "HasLength",
+        "Hmmm",
+        "X",
+        "Y",
+        "_y",
+        "abc",
+        "def",
+        "explicit",
+        "identity",
+        "strIdent",
+        "twoTyped",
+        "use"
+    ],
+    "allKinds": [
+        "VariableDeclaration",
+        "TypeAliasDeclaration",
+        "InterfaceDeclaration",
+        "TypeParameter",
+        "CallSignature",
+        "ClassDeclaration",
+        "FunctionDeclaration",
+        "MethodSignature"
+    ],
+    "allKindsWithMembers": [
+        "InterfaceDeclaration",
+        "ClassDeclaration"
+    ],
+    "allMembersKindsNoAmbiguity": []
+}

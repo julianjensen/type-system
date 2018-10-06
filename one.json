@@ -1,0 +1,2576 @@
+{
+    "node_modules/typescript/lib/lib.es2015.symbol.d.ts": {
+        "SymbolConstructor": {
+            "decl": "SymbolConstructor",
+            "name": "SymbolConstructor",
+            "members": [
+                {
+                    "decl": "prototype: Symbol",
+                    "name": "prototype",
+                    "readOnly": true,
+                    "type": {
+                        "type": "reference",
+                        "typeName": "Symbol"
+                    },
+                    "kind": "PropertySignature"
+                },
+                {
+                    "decl": "( description?: string | number ): symbol",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    "string",
+                                    "number"
+                                ]
+                            },
+                            "name": "description",
+                            "optional": true
+                        }
+                    ],
+                    "returns": "symbol",
+                    "type": "function",
+                    "kind": "CallSignature"
+                },
+                {
+                    "decl": "for( key: string ): symbol",
+                    "name": "for",
+                    "parameters": [
+                        {
+                            "type": "string",
+                            "name": "key"
+                        }
+                    ],
+                    "returns": "symbol",
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keyFor( sym: symbol ): string | undefined",
+                    "name": "keyFor",
+                    "parameters": [
+                        {
+                            "type": "symbol",
+                            "name": "sym"
+                        }
+                    ],
+                    "returns": {
+                        "type": "union",
+                        "types": [
+                            "string",
+                            "undefined"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        }
+    },
+    "node_modules/typescript/lib/lib.es2015.iterable.d.ts": {
+        "SymbolConstructor": {
+            "decl": "SymbolConstructor",
+            "name": "SymbolConstructor",
+            "members": [
+                {
+                    "decl": "iterator: symbol",
+                    "name": "iterator",
+                    "readOnly": true,
+                    "type": "symbol",
+                    "kind": "PropertySignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "IteratorResult": {
+            "decl": "IteratorResult<T>",
+            "name": "IteratorResult",
+            "members": [
+                {
+                    "decl": "done: boolean",
+                    "name": "done",
+                    "type": "boolean",
+                    "kind": "PropertySignature"
+                },
+                {
+                    "decl": "value: T",
+                    "name": "value",
+                    "type": {
+                        "type": "reference",
+                        "typeName": "T"
+                    },
+                    "kind": "PropertySignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "Iterator": {
+            "decl": "Iterator<T>",
+            "name": "Iterator",
+            "members": [
+                {
+                    "decl": "next( value?: any ): IteratorResult<T>",
+                    "name": "next",
+                    "parameters": [
+                        {
+                            "type": "any",
+                            "name": "value",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IteratorResult",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "return( value?: any ): IteratorResult<T>",
+                    "name": "return",
+                    "parameters": [
+                        {
+                            "type": "any",
+                            "name": "value",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IteratorResult",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "throw( e?: any ): IteratorResult<T>",
+                    "name": "throw",
+                    "parameters": [
+                        {
+                            "type": "any",
+                            "name": "e",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IteratorResult",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "Iterable": {
+            "decl": "Iterable<T>",
+            "name": "Iterable",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): Iterator<T>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Iterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "IterableIterator": {
+            "decl": "IterableIterator<T>",
+            "name": "IterableIterator",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<T>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "heritage": [
+                {
+                    "name": "Iterator",
+                    "typeArguments": [
+                        "T"
+                    ]
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "Array": {
+            "decl": "Array<T>",
+            "name": "Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<T>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, T ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<T>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "ArrayConstructor": {
+            "decl": "ArrayConstructor",
+            "name": "ArrayConstructor",
+            "members": [
+                {
+                    "decl": "from<T>( iterable: Iterable<T> | ArrayLike<T> ): T[]",
+                    "name": "from",
+                    "typeParameters": [
+                        {
+                            "name": "T"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "Iterable",
+                                        "typeArguments": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "ArrayLike",
+                                        "typeArguments": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "name": "iterable"
+                        }
+                    ],
+                    "returns": {
+                        "type": "array",
+                        "elementType": {
+                            "type": "reference",
+                            "typeName": "T"
+                        }
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "from<T, U>( iterable: Iterable<T> | ArrayLike<T>, mapfn: ( v: T, k: number ) => U, thisArg?: any ): U[]",
+                    "name": "from",
+                    "typeParameters": [
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "Iterable",
+                                        "typeArguments": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "ArrayLike",
+                                        "typeArguments": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "name": "iterable"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            },
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": {
+                                        "type": "reference",
+                                        "typeName": "U"
+                                    }
+                                }
+                            },
+                            "name": "mapfn"
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "array",
+                        "elementType": {
+                            "type": "reference",
+                            "typeName": "U"
+                        }
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "ReadonlyArray": {
+            "decl": "ReadonlyArray<T>",
+            "name": "ReadonlyArray",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<T>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, T ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<T>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "IArguments": {
+            "decl": "IArguments",
+            "name": "IArguments",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<any>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "any"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Map": {
+            "decl": "Map<K, V>",
+            "name": "Map",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<[ K, V ]>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "K"
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "V"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ K, V ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "K"
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "V"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<K>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "K"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<V>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "V"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "K"
+                },
+                {
+                    "name": "V"
+                }
+            ]
+        },
+        "ReadonlyMap": {
+            "decl": "ReadonlyMap<K, V>",
+            "name": "ReadonlyMap",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<[ K, V ]>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "K"
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "V"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ K, V ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "K"
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "V"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<K>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "K"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<V>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "V"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "K"
+                },
+                {
+                    "name": "V"
+                }
+            ]
+        },
+        "MapConstructor": {
+            "decl": "MapConstructor",
+            "name": "MapConstructor",
+            "members": [
+                {
+                    "decl": "<K, V>( iterable: Iterable<[ K, V ]> ): Map<K, V>",
+                    "typeParameters": [
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "V"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    {
+                                        "type": "tuple",
+                                        "types": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "K"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "V"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "name": "iterable"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Map",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "K"
+                            },
+                            {
+                                "type": "reference",
+                                "typeName": "V"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "WeakMap": {
+            "decl": "WeakMap<K extends object, V>",
+            "name": "WeakMap",
+            "members": [],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "K",
+                    "constraint": {}
+                },
+                {
+                    "name": "V"
+                }
+            ]
+        },
+        "WeakMapConstructor": {
+            "decl": "WeakMapConstructor",
+            "name": "WeakMapConstructor",
+            "members": [
+                {
+                    "decl": "<K extends object, V>( iterable: Iterable<[ K, V ]> ): WeakMap<K, V>",
+                    "typeParameters": [
+                        {
+                            "name": "K",
+                            "constraint": {}
+                        },
+                        {
+                            "name": "V",
+                            "default": "any"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    {
+                                        "type": "tuple",
+                                        "types": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "K"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "V"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "name": "iterable"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "WeakMap",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "K"
+                            },
+                            {
+                                "type": "reference",
+                                "typeName": "V"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Set": {
+            "decl": "Set<T>",
+            "name": "Set",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<T>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ T, T ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<T>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<T>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "ReadonlySet": {
+            "decl": "ReadonlySet<T>",
+            "name": "ReadonlySet",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<T>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ T, T ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<T>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<T>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "SetConstructor": {
+            "decl": "SetConstructor",
+            "name": "SetConstructor",
+            "members": [
+                {
+                    "decl": "<T>( iterable: Iterable<T> ): Set<T>",
+                    "typeParameters": [
+                        {
+                            "name": "T"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                ]
+                            },
+                            "name": "iterable"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Set",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "WeakSet": {
+            "decl": "WeakSet<T extends object>",
+            "name": "WeakSet",
+            "members": [],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T",
+                    "constraint": {}
+                }
+            ]
+        },
+        "WeakSetConstructor": {
+            "decl": "WeakSetConstructor",
+            "name": "WeakSetConstructor",
+            "members": [
+                {
+                    "decl": "<T extends object>( iterable: Iterable<T> ): WeakSet<T>",
+                    "typeParameters": [
+                        {
+                            "name": "T",
+                            "constraint": {}
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    }
+                                ]
+                            },
+                            "name": "iterable"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "WeakSet",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Promise": {
+            "decl": "Promise<T>",
+            "name": "Promise",
+            "members": [],
+            "kind": "InterfaceDeclaration",
+            "typeParameters": [
+                {
+                    "name": "T"
+                }
+            ]
+        },
+        "PromiseConstructor": {
+            "decl": "PromiseConstructor",
+            "name": "PromiseConstructor",
+            "members": [
+                {
+                    "decl": "all<TAll>( values: Iterable<TAll | PromiseLike<TAll>> ): Promise<TAll[]>",
+                    "name": "all",
+                    "typeParameters": [
+                        {
+                            "name": "TAll"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    {
+                                        "type": "union",
+                                        "types": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "TAll"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "PromiseLike",
+                                                "typeArguments": [
+                                                    {
+                                                        "type": "reference",
+                                                        "typeName": "TAll"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "name": "values"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Promise",
+                        "typeArguments": [
+                            {
+                                "type": "array",
+                                "elementType": {
+                                    "type": "reference",
+                                    "typeName": "TAll"
+                                }
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "race<T>( values: Iterable<T | PromiseLike<T>> ): Promise<T>",
+                    "name": "race",
+                    "typeParameters": [
+                        {
+                            "name": "T"
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    {
+                                        "type": "union",
+                                        "types": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "PromiseLike",
+                                                "typeArguments": [
+                                                    {
+                                                        "type": "reference",
+                                                        "typeName": "T"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "name": "values"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Promise",
+                        "typeArguments": [
+                            {
+                                "type": "reference",
+                                "typeName": "T"
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Reflect": {
+            "decl": "Reflect",
+            "name": "Reflect",
+            "kind": "ModuleDeclaration"
+        },
+        "String": {
+            "decl": "String",
+            "name": "String",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<string>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "string"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Int8Array": {
+            "decl": "Int8Array",
+            "name": "Int8Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Int8ArrayConstructor": {
+            "decl": "Int8ArrayConstructor",
+            "name": "Int8ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Int8Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Int8Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Int8Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Int8Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint8Array": {
+            "decl": "Uint8Array",
+            "name": "Uint8Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint8ArrayConstructor": {
+            "decl": "Uint8ArrayConstructor",
+            "name": "Uint8ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Uint8Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint8Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Uint8Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint8Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint8ClampedArray": {
+            "decl": "Uint8ClampedArray",
+            "name": "Uint8ClampedArray",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint8ClampedArrayConstructor": {
+            "decl": "Uint8ClampedArrayConstructor",
+            "name": "Uint8ClampedArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Uint8ClampedArray",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint8ClampedArray"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Uint8ClampedArray",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint8ClampedArray"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Int16Array": {
+            "decl": "Int16Array",
+            "name": "Int16Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Int16ArrayConstructor": {
+            "decl": "Int16ArrayConstructor",
+            "name": "Int16ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Int16Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Int16Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Int16Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Int16Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint16Array": {
+            "decl": "Uint16Array",
+            "name": "Uint16Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint16ArrayConstructor": {
+            "decl": "Uint16ArrayConstructor",
+            "name": "Uint16ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Uint16Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint16Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Uint16Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint16Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Int32Array": {
+            "decl": "Int32Array",
+            "name": "Int32Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Int32ArrayConstructor": {
+            "decl": "Int32ArrayConstructor",
+            "name": "Int32ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Int32Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Int32Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Int32Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Int32Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint32Array": {
+            "decl": "Uint32Array",
+            "name": "Uint32Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Uint32ArrayConstructor": {
+            "decl": "Uint32ArrayConstructor",
+            "name": "Uint32ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Uint32Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint32Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Uint32Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Uint32Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Float32Array": {
+            "decl": "Float32Array",
+            "name": "Float32Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Float32ArrayConstructor": {
+            "decl": "Float32ArrayConstructor",
+            "name": "Float32ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Float32Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Float32Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Float32Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Float32Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Float64Array": {
+            "decl": "Float64Array",
+            "name": "Float64Array",
+            "members": [
+                {
+                    "decl": "[Symbol.iterator](): IterableIterator<number>",
+                    "name": "[Symbol.iterator]",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "entries(): IterableIterator<[ number, number ]>",
+                    "name": "entries",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            {
+                                "type": "tuple",
+                                "types": [
+                                    "number",
+                                    "number"
+                                ]
+                            }
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "keys(): IterableIterator<number>",
+                    "name": "keys",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                },
+                {
+                    "decl": "values(): IterableIterator<number>",
+                    "name": "values",
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "IterableIterator",
+                        "typeArguments": [
+                            "number"
+                        ]
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        },
+        "Float64ArrayConstructor": {
+            "decl": "Float64ArrayConstructor",
+            "name": "Float64ArrayConstructor",
+            "members": [
+                {
+                    "decl": "( elements: Iterable<number> ): Float64Array",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "elements"
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Float64Array"
+                    },
+                    "type": "function",
+                    "kind": "ConstructSignature"
+                },
+                {
+                    "decl": "from( arrayLike: Iterable<number>, mapfn?: ( v: number, k: number ) => number, thisArg?: any ): Float64Array",
+                    "name": "from",
+                    "parameters": [
+                        {
+                            "type": {
+                                "type": "reference",
+                                "typeName": "Iterable",
+                                "typeArguments": [
+                                    "number"
+                                ]
+                            },
+                            "name": "arrayLike"
+                        },
+                        {
+                            "type": {
+                                "type": "function",
+                                "definition": {
+                                    "parameters": [
+                                        {
+                                            "type": "number",
+                                            "name": "v"
+                                        },
+                                        {
+                                            "type": "number",
+                                            "name": "k"
+                                        }
+                                    ],
+                                    "returns": "number"
+                                }
+                            },
+                            "name": "mapfn",
+                            "optional": true
+                        },
+                        {
+                            "type": "any",
+                            "name": "thisArg",
+                            "optional": true
+                        }
+                    ],
+                    "returns": {
+                        "type": "reference",
+                        "typeName": "Float64Array"
+                    },
+                    "type": "function",
+                    "kind": "MethodSignature"
+                }
+            ],
+            "kind": "InterfaceDeclaration"
+        }
+    }
+}

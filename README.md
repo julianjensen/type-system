@@ -1,27 +1,110 @@
 # type-system
 
-[![Coveralls Status][coveralls-image]][coveralls-url]
-[![Build Status][travis-image]][travis-url]
-[![Dependency Status][depstat-image]][depstat-url]
-[![npm version][npm-image]][npm-url]
-[![License][license-image]][license-url]
-[![Known Vulnerabilities][snyk-image]][snyk-url]
-[![david-dm][david-dm-image]][david-dm-url]
-
 > Type system for inference
 
-## Remove This Section After Reading
 
-Make sure you update this *README* file and remove this section. By using copious amount of *JSDoc* tags you can ensure good code documentation. This module supports the automatic generation of an API document by typing `npm run mddocs` which will create a document `API.md` which you can link to or concatenate to this *README.md* file.
+## Notes
 
-It has also set up a unit test enviroment. Just type `npm test` to execute your unit tests which will be in the `test/` directory. It uses **mocha** and **chai** for testing.
+```typescript
+/**
+ * 1. Defined as generic.
+ * 2. Two type parameters in local scope under global scope
+ * 3. Each is a reference with name and unresolved
+ * 4. Type (return type) is Number
+ * 
+ * Local scope holds
+ * S ref void
+ * T ref void
+ * 
+ * @param thing
+ * @param other
+ */
+function func<S, T>(thing: S, other: T): number;
 
-It has `.gitignore`, `.editorconfig`, and `.eslintrc.json` files in the project root.
+    interface FuncObject {
+    };
 
-Here's how to finalize the **git** VCS for this project.
+/**
+ * 1. Defined as generic
+ * 2. One type parameter in local scope under global scope
+ * 3. Return type is Number
+ * 
+ * `derived` scope holds
+ * S ref void
+ * func' ref func
+ * 
+ * func' scope holds
+ * S ref derived.S
+ * T ref Number
+ * 
+ * @param thingy
+ */
+function derived<S>(thingy: S): FuncObject {
 
-1. Create your repository on https://github.com/julianjensen/type-system (Your project directory is already init'd and staged for commit)
-2. Type `git push -u origin master`
+    interface FuncObject<S> {
+        f: func<S, Number>  
+    };
+    
+
+    /**
+     * 1. Defined as generic func' (new type) 
+     * 1. Copy of func type
+     * 2. Two type parameters
+     * 3. S is unresolved
+     * 4. T is a reference resolved to Number
+     * 5. Return type is Number, corresponding to function return type
+     */
+    
+    return {
+        f : func<S, number> = (thingy, 10) {
+            return s.length * number;
+        };
+    };
+};
+
+/**
+ * Derived (in situ) is a new, actual, type:
+ * 1. Define as a type
+ * 2. Copy of `derived` type
+ * 3. One type parameter
+ * 4. S is a reference to String
+ * 
+ * `derived<string>` node scope holds
+ * S ref String
+ * derived' ref derived
+ * 
+ * `derived<Array<string>>` node scope holds
+ * S ref Array<string>
+ * derived' ref derived
+ */
+const strlng : number = derived<string>( "Hello" );
+const arrlng : number = derived<Array<string>>( ["a", "b"] );
+
+console.log( `s: ${strlng}, a: ${arrlng}` );
+
+```
+
+When defining a generic
+
+* create a generic type with a scope
+* add type parameters to scope as unresolved references
+
+When instantiating a generic as a new generic (partially resolved)
+
+* create a generic with a scope (copy of generic)
+* for each type parameter, create scope entry
+* unresolved parameters are added as unresolved references
+* resolved parameters are added as resolved references
+
+When instantiating a generic as a type (fully resolved)
+
+* create a type with a scope (copy of generic)
+* for each type parameter, add type reference in scope with resolution
+
+When resolving a type based on a generic type
+
+* use scopes as normal (literal context)
+* also use instantiation scope chain
 
 ## Install
 
@@ -41,25 +124,4 @@ typeSystem() // true
 ## License
 
 MIT © [Julian Jensen](https://github.com/julianjensen/type-system)
-
-[coveralls-url]: https://coveralls.io/github/julianjensen/type-system?branch=master
-[coveralls-image]: https://coveralls.io/repos/github/julianjensen/type-system/badge.svg?branch=master
-
-[travis-url]: https://travis-ci.org/julianjensen/type-system
-[travis-image]: http://img.shields.io/travis/julianjensen/type-system.svg
-
-[depstat-url]: https://gemnasium.com/github.com/julianjensen/type-system
-[depstat-image]: https://gemnasium.com/badges/github.com/julianjensen/type-system.svg
-
-[npm-url]: https://badge.fury.io/js/type-system
-[npm-image]: https://badge.fury.io/js/type-system.svg
-
-[license-url]: https://github.com/julianjensen/type-system/blob/master/LICENSE
-[license-image]: https://img.shields.io/badge/license-MIT-brightgreen.svg
-
-[snyk-url]: https://snyk.io/test/github/julianjensen/type-system
-[snyk-image]: https://snyk.io/test/github/julianjensen/type-system/badge.svg
-
-[david-dm-url]: https://david-dm.org/julianjensen/type-system
-[david-dm-image]: https://david-dm.org/julianjensen/type-system.svg
 

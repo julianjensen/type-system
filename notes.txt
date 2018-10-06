@@ -1,0 +1,78 @@
+DEFINITION
+templ1<A>
+    func1<B>(A, B, B): A
+
+STORAGE:
+templ1
+    A -> null
+    func1
+        B -> null
+
+USAGE:
+v = templ1<string>
+
+STORAGE:
+templ1-string
+    alias templ1
+    A -> string
+
+v.func1<number>(string, number, number): string
+    alias v.func1
+    B -> number
+
+v.func1(string, number, number): string
+    alias v.func1
+    B -> parameter[1].type || parameter[2].type
+    every parameter filter on type === B
+        map parameter type
+        filter on known type
+        to set of unique type names
+        set.length === 1 or Error
+
+        for every type parameter
+        A, B, B => B, B => number, number => [number] => length === 1
+
+
+templ2<A, B>
+    func1<C, D>(A, C): D
+
+
+templ3<S>
+    templ2<S, number>
+    ref templ2
+    A -> S
+    B -> number
+
+provided = type parameters slice(0, length provided)
+missing = type parameters slice(length provided, number of type parameters)
+for every type parameter missing
+
+    if type param exists as formal parameters
+        collect all types in B's place
+        discard unknowns
+        if none left
+            check_default
+        if more than one type
+            error
+        type -> single type left
+        continue
+
+check_default:
+    if default exists
+        type -> default
+        continue
+    else error
+
+if all are resolved
+    if none are type parameters
+        define new reference to template with all type parameters resolved
+    else
+        define new template with
+
+
+abc<S, T> => TEMPLATE abc<S, T> SCOPE: [], name: abc-$$$-$$$
+abc<U, number> => TEMPLATE abc<S, number> SCOPE: [T = number], name: abc-$$$-number
+SCOPE: U = string
+    TYPE: abc<string, number>, SCOPE: [S = string, T = number], name: abc-string-number
+
+

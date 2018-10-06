@@ -17,7 +17,9 @@
         "changelog": "npx auto-changelog -p -l 10 && git add CHANGELOG.md",
         "marktoc": "npx replace -s -q '### Changelog' '<!-- START doctoc -->\\\n<!-- END doctoc -->' CHANGELOG.md",
         "toc": "npx doctoc --github --title \"### Changelog\" CHANGELOG.md",
-        "version": "run-s -s changelog marktoc toc"
+        "version": "run-s -s changelog marktoc toc",
+        "syms": "node --harmony --no-warnings -r esm index.js parse node_modules/typescript/lib/lib.es6.d.ts node_modules/typescript/lib/node.d.ts node_modules/typescript/lib/dom.es6.generated.d.ts node_modules/typescript/lib/esnext.promise.d.ts node_modules/typescript/lib/inspector.d.ts node_modules/typescript/lib/lib.es2017.intl.d.ts node_modules/typescript/lib/lib.es2017.object.d.ts node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts node_modules/typescript/lib/lib.es2017.string.d.ts node_modules/typescript/lib/lib.es2017.typedarrays.d.ts node_modules/typescript/lib/lib.esnext.asynciterable.d.ts node_modules/typescript/lib/webworker.generated.d.ts >sym.json",
+        "one": "node --harmony --no-warnings -r esm index.js parse node_modules/typescript/lib/lib.es2015.iterable.d.ts >one.json"
     },
     "repository": {
         "type": "git",
@@ -25,11 +27,11 @@
     },
     "keywords": [
         "types",
-        "type",
-        "theory",
+        "type theory",
         "inference",
-        "type",
-        "inference"
+        "type inference",
+        "type system",
+        "type annotation"
     ],
     "author": "Julian Jensen <jjdanois@gmail.com>",
     "license": "MIT",
@@ -38,14 +40,32 @@
     },
     "homepage": "https://github.com/julianjensen/type-system#readme",
     "devDependencies": {
+        "chai": "^4.1.1",
+        "coveralls": "^2.13.1",
+        "dependency-check": "^2.5.1",
         "eslint": "^4.4.0",
         "istanbul": "^0.4.5",
         "mocha": "^3.5.0",
-        "chai": "^4.1.1",
-        "coveralls": "^2.13.1",
-        "rimraf": "^2.4.2",
-        "dependency-check": "^2.5.1",
         "mocha-lcov-reporter": "^1.3.0",
-        "npm-run-all": "^4.1.2"
+        "npm-run-all": "^4.1.2",
+        "rimraf": "^2.4.2"
+    },
+    "dependencies": {
+        "bluebird": "^3.5.2",
+        "chalk": "^2.4.1",
+        "commander": "^2.18.0",
+        "convenience": "^1.1.6",
+        "deep-eql": "^3.0.1",
+        "escope": "^3.6.0",
+        "esm": "^3.0.84",
+        "espree": "^4.0.0",
+        "estraverse": "^4.2.0",
+        "fs-extra": "^7.0.0",
+        "globby": "^8.0.1",
+        "mixwith": "^0.1.1",
+        "signale": "^1.3.0",
+        "string.ify": "^1.0.49",
+        "typeofs": "^1.0.0",
+        "typescript": "^3.1.1"
     }
 }

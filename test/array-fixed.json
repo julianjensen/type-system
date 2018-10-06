@@ -1,0 +1,1455 @@
+{
+    "name": "Array",
+    "decls": [
+        {
+            "decl": "Array<T>",
+            "kind": "InterfaceDeclaration",
+            "members": [
+                {
+                    "name": "T",
+                    "decls": [
+                        {
+                            "decl": "T",
+                            "kind": "TypeParameter"
+                        }
+                    ],
+                    "kind": "TypeParameter"
+                },
+                {
+                    "name": "length",
+                    "decls": [
+                        {
+                            "decl": "length: number",
+                            "type": "number",
+                            "kind": "PropertySignature"
+                        }
+                    ],
+                    "kind": "PropertySignature"
+                },
+                {
+                    "name": "__toString",
+                    "decls": [
+                        {
+                            "decl": "toString(): string",
+                            "type": "string",
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "__toLocaleString",
+                    "decls": [
+                        {
+                            "decl": "toLocaleString(): string",
+                            "type": "string",
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "push",
+                    "decls": [
+                        {
+                            "decl": "push( ...items: T[] ): number",
+                            "type": "number",
+                            "parameters": [
+                                {
+                                    "typeName": {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    "isArray": true,
+                                    "name": "items",
+                                    "rest": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "pop",
+                    "decls": [
+                        {
+                            "decl": "pop(): T | undefined",
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": {
+                                            "name": "T"
+                                        }
+                                    },
+                                    {
+                                        "typeName": "undefined"
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "concat",
+                    "decls": [
+                        {
+                            "decl": "concat( ...items: ReadonlyArray<T>[] ): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "parameters": [
+                                {
+                                    "typeName": {
+                                        "type": "reference",
+                                        "typeName": "ReadonlyArray",
+                                        "typeArguments": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": {
+                                                    "name": "T"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "isArray": true,
+                                    "name": "items",
+                                    "rest": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "concat( ...items: ( T | ReadonlyArray<T> )[] ): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "parameters": [
+                                {
+                                    "typeName": {
+                                        "type": "parens",
+                                        "types": {
+                                            "type": "union",
+                                            "types": [
+                                                {
+                                                    "type": "reference",
+                                                    "typeName": {
+                                                        "name": "T"
+                                                    }
+                                                },
+                                                {
+                                                    "type": "reference",
+                                                    "typeName": {
+                                                        "name": "ReadonlyArray"
+                                                    },
+                                                    "typeArguments": [
+                                                        {
+                                                            "type": "reference",
+                                                            "typeName": {
+                                                                "name": "T"
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "isArray": true,
+                                    "name": "items",
+                                    "rest": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "join",
+                    "decls": [
+                        {
+                            "decl": "join( separator?: string ): string",
+                            "type": "string",
+                            "parameters": [
+                                {
+                                    "typeName": "string",
+                                    "name": "separator",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "reverse",
+                    "decls": [
+                        {
+                            "decl": "reverse(): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "shift",
+                    "decls": [
+                        {
+                            "decl": "shift(): T | undefined",
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": {
+                                            "name": "T"
+                                        }
+                                    },
+                                    {
+                                        "typeName": "undefined"
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "slice",
+                    "decls": [
+                        {
+                            "decl": "slice( start?: number, end?: number ): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "parameters": [
+                                {
+                                    "typeName": "number",
+                                    "name": "start",
+                                    "optional": true
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "end",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "sort",
+                    "decls": [
+                        {
+                            "decl": "sort( compareFn?: ( a: T, b: T ) => number ): ThisType",
+                            "type": "ThisType",
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "a"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "b"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "number"
+                                        }
+                                    },
+                                    "name": "compareFn",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "splice",
+                    "decls": [
+                        {
+                            "decl": "splice( start: number, deleteCount?: number ): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "parameters": [
+                                {
+                                    "typeName": "number",
+                                    "name": "start"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "deleteCount",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "splice( start: number, deleteCount: number, ...items: T[] ): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "parameters": [
+                                {
+                                    "typeName": "number",
+                                    "name": "start"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "deleteCount"
+                                },
+                                {
+                                    "typeName": {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    "isArray": true,
+                                    "name": "items",
+                                    "rest": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "unshift",
+                    "decls": [
+                        {
+                            "decl": "unshift( ...items: T[] ): number",
+                            "type": "number",
+                            "parameters": [
+                                {
+                                    "typeName": {
+                                        "type": "reference",
+                                        "typeName": "T"
+                                    },
+                                    "isArray": true,
+                                    "name": "items",
+                                    "rest": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "indexOf",
+                    "decls": [
+                        {
+                            "decl": "indexOf( searchElement: T, fromIndex?: number ): number",
+                            "type": "number",
+                            "parameters": [
+                                {
+                                    "type": "reference",
+                                    "typeName": "T",
+                                    "name": "searchElement"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "fromIndex",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "lastIndexOf",
+                    "decls": [
+                        {
+                            "decl": "lastIndexOf( searchElement: T, fromIndex?: number ): number",
+                            "type": "number",
+                            "parameters": [
+                                {
+                                    "type": "reference",
+                                    "typeName": "T",
+                                    "name": "searchElement"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "fromIndex",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "every",
+                    "decls": [
+                        {
+                            "decl": "every( callbackfn: ( value: T, index: number, array: T[] ) => boolean, thisArg?: any ): boolean",
+                            "type": "boolean",
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "boolean"
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "some",
+                    "decls": [
+                        {
+                            "decl": "some( callbackfn: ( value: T, index: number, array: T[] ) => boolean, thisArg?: any ): boolean",
+                            "type": "boolean",
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "boolean"
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "forEach",
+                    "decls": [
+                        {
+                            "decl": "forEach( callbackfn: ( value: T, index: number, array: T[] ) => void, thisArg?: any ): void",
+                            "type": "void",
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "void"
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "map",
+                    "decls": [
+                        {
+                            "decl": "map<U>( callbackfn: ( value: T, index: number, array: T[] ) => U, thisArg?: any ): U[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "U"
+                                },
+                                "isArray": true
+                            },
+                            "typeParameters": [
+                                {
+                                    "typeName": "U",
+                                    "name": "U"
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "U"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "filter",
+                    "decls": [
+                        {
+                            "decl": "filter<S extends T>( callbackfn: ( value: T, index: number, array: T[] ) => value is S, thisArg?: any ): S[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "S"
+                                },
+                                "isArray": true
+                            },
+                            "typeParameters": [
+                                {
+                                    "typeName": "T",
+                                    "name": "S",
+                                    "typeOperator": " extends"
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "predicate",
+                                            "param": "value",
+                                            "returns": {
+                                                "type": "reference",
+                                                "typeName": {
+                                                    "name": "S"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "filter( callbackfn: ( value: T, index: number, array: T[] ) => any, thisArg?: any ): T[]",
+                            "type": {
+                                "typeName": {
+                                    "type": "reference",
+                                    "typeName": "T"
+                                },
+                                "isArray": true
+                            },
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "any"
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "reduce",
+                    "decls": [
+                        {
+                            "decl": "reduce( callbackfn: ( previousValue: T, currentValue: T, currentIndex: number, array: T[] ) => T ): T",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "T"
+                            },
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "previousValue"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "currentValue"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "currentIndex"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "T"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "reduce( callbackfn: ( previousValue: T, currentValue: T, currentIndex: number, array: T[] ) => T, initialValue: T ): T",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "T"
+                            },
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "previousValue"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "currentValue"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "currentIndex"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "T"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "type": "reference",
+                                    "typeName": "T",
+                                    "name": "initialValue"
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "reduce<U>( callbackfn: ( previousValue: U, currentValue: T, currentIndex: number, array: T[] ) => U, initialValue: U ): U",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "U"
+                            },
+                            "typeParameters": [
+                                {
+                                    "typeName": "U",
+                                    "name": "U"
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "U",
+                                                "name": "previousValue"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "currentValue"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "currentIndex"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "U"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "type": "reference",
+                                    "typeName": "U",
+                                    "name": "initialValue"
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "reduceRight",
+                    "decls": [
+                        {
+                            "decl": "reduceRight( callbackfn: ( previousValue: T, currentValue: T, currentIndex: number, array: T[] ) => T ): T",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "T"
+                            },
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "previousValue"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "currentValue"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "currentIndex"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "T"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "reduceRight( callbackfn: ( previousValue: T, currentValue: T, currentIndex: number, array: T[] ) => T, initialValue: T ): T",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "T"
+                            },
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "previousValue"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "currentValue"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "currentIndex"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "T"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "type": "reference",
+                                    "typeName": "T",
+                                    "name": "initialValue"
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "reduceRight<U>( callbackfn: ( previousValue: U, currentValue: T, currentIndex: number, array: T[] ) => U, initialValue: U ): U",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "U"
+                            },
+                            "typeParameters": [
+                                {
+                                    "typeName": "U",
+                                    "name": "U"
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "U",
+                                                "name": "previousValue"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "currentValue"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "currentIndex"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "array"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "reference",
+                                            "typeName": {
+                                                "name": "U"
+                                            }
+                                        }
+                                    },
+                                    "name": "callbackfn"
+                                },
+                                {
+                                    "type": "reference",
+                                    "typeName": "U",
+                                    "name": "initialValue"
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "Index",
+                    "decls": [
+                        {
+                            "decl": "[ n: number ]: T",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "T"
+                            },
+                            "parameters": [
+                                {
+                                    "typeName": "number",
+                                    "name": "n"
+                                }
+                            ],
+                            "kind": "IndexSignature"
+                        }
+                    ],
+                    "kind": "IndexSignature"
+                },
+                {
+                    "name": "find",
+                    "decls": [
+                        {
+                            "decl": "find<S extends T>( predicate: ( this: void, value: T, index: number, obj: T[] ) => value is S, thisArg?: any ): S | undefined",
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": {
+                                            "name": "S"
+                                        }
+                                    },
+                                    {
+                                        "typeName": "undefined"
+                                    }
+                                ]
+                            },
+                            "typeParameters": [
+                                {
+                                    "typeName": "T",
+                                    "name": "S",
+                                    "typeOperator": " extends"
+                                }
+                            ],
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "typeName": "void",
+                                                "name": "this"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "obj"
+                                            }
+                                        ],
+                                        "type": {
+                                            "type": "predicate",
+                                            "param": "value",
+                                            "returns": {
+                                                "type": "reference",
+                                                "typeName": {
+                                                    "name": "S"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "name": "predicate"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        },
+                        {
+                            "decl": "find( predicate: ( value: T, index: number, obj: T[] ) => boolean, thisArg?: any ): T | undefined",
+                            "type": {
+                                "type": "union",
+                                "types": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": {
+                                            "name": "T"
+                                        }
+                                    },
+                                    {
+                                        "typeName": "undefined"
+                                    }
+                                ]
+                            },
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "obj"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "boolean"
+                                        }
+                                    },
+                                    "name": "predicate"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "findIndex",
+                    "decls": [
+                        {
+                            "decl": "findIndex( predicate: ( value: T, index: number, obj: T[] ) => boolean, thisArg?: any ): number",
+                            "type": "number",
+                            "parameters": [
+                                {
+                                    "type": "function",
+                                    "definition": {
+                                        "parameters": [
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T",
+                                                "name": "value"
+                                            },
+                                            {
+                                                "typeName": "number",
+                                                "name": "index"
+                                            },
+                                            {
+                                                "typeName": {
+                                                    "type": "reference",
+                                                    "typeName": "T"
+                                                },
+                                                "isArray": true,
+                                                "name": "obj"
+                                            }
+                                        ],
+                                        "type": {
+                                            "typeName": "boolean"
+                                        }
+                                    },
+                                    "name": "predicate"
+                                },
+                                {
+                                    "typeName": "any",
+                                    "name": "thisArg",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "fill",
+                    "decls": [
+                        {
+                            "decl": "fill( value: T, start?: number, end?: number ): ThisType",
+                            "type": "ThisType",
+                            "parameters": [
+                                {
+                                    "type": "reference",
+                                    "typeName": "T",
+                                    "name": "value"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "start",
+                                    "optional": true
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "end",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "copyWithin",
+                    "decls": [
+                        {
+                            "decl": "copyWithin( target: number, start: number, end?: number ): ThisType",
+                            "type": "ThisType",
+                            "parameters": [
+                                {
+                                    "typeName": "number",
+                                    "name": "target"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "start"
+                                },
+                                {
+                                    "typeName": "number",
+                                    "name": "end",
+                                    "optional": true
+                                }
+                            ],
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "__@iterator",
+                    "decls": [
+                        {
+                            "decl": "(): IterableIterator<T>",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "IterableIterator",
+                                "typeArguments": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": {
+                                            "name": "T"
+                                        }
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "entries",
+                    "decls": [
+                        {
+                            "decl": "entries(): IterableIterator<[ number, T ]>",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "IterableIterator",
+                                "typeArguments": [
+                                    {
+                                        "type": "tuple",
+                                        "types": [
+                                            {
+                                                "typeName": "number"
+                                            },
+                                            {
+                                                "type": "reference",
+                                                "typeName": "T"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "keys",
+                    "decls": [
+                        {
+                            "decl": "keys(): IterableIterator<number>",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "IterableIterator",
+                                "typeArguments": [
+                                    {
+                                        "typeName": "number"
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "values",
+                    "decls": [
+                        {
+                            "decl": "values(): IterableIterator<T>",
+                            "type": {
+                                "type": "reference",
+                                "typeName": "IterableIterator",
+                                "typeArguments": [
+                                    {
+                                        "type": "reference",
+                                        "typeName": {
+                                            "name": "T"
+                                        }
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                },
+                {
+                    "name": "__@unscopables",
+                    "decls": [
+                        {
+                            "decl": "(): { copyWithin, entries, fill, find, findIndex, keys, values }",
+                            "type": {
+                                "type": "typeliteral",
+                                "members": [
+                                    {
+                                        "typeName": "copyWithin",
+                                        "name": "copyWithin"
+                                    },
+                                    {
+                                        "typeName": "entries",
+                                        "name": "entries"
+                                    },
+                                    {
+                                        "typeName": "fill",
+                                        "name": "fill"
+                                    },
+                                    {
+                                        "typeName": "find",
+                                        "name": "find"
+                                    },
+                                    {
+                                        "typeName": "findIndex",
+                                        "name": "findIndex"
+                                    },
+                                    {
+                                        "typeName": "keys",
+                                        "name": "keys"
+                                    },
+                                    {
+                                        "typeName": "values",
+                                        "name": "values"
+                                    }
+                                ]
+                            },
+                            "kind": "MethodSignature"
+                        }
+                    ],
+                    "kind": "MethodSignature"
+                }
+            ]
+        },
+        {
+            "decl": "Array: ArrayConstructor",
+            "type": {
+                "type": "reference",
+                "typeName": "ArrayConstructor"
+            },
+            "kind": "VariableDeclaration"
+        }
+    ],
+    "kind": "VariableDeclaration"
+}
