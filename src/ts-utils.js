@@ -4,10 +4,12 @@
  * @since 0.0.1
  *******************************************************************************/
 
+
 "use strict";
 
 import { SyntaxKind }   from "./ts-helpers";
 import { unescapeName } from "./named-object";
+import { node_fatal }   from "./utils";
 
 
 export const tsInfo = {
@@ -177,10 +179,17 @@ export function is( node, ..._kinds )
     return _identify;
 }
 
-function kind( node )
+export function kind( node )
 {
+    if ( typeof node === 'number' )
+        return SyntaxKind[ node ];
+    else if ( typeof node === 'string' )
+        return node;
+
     return !node ? 'undefined' : SyntaxKind[ node.kind ];
 }
+
+export const pkind = kind;
 
 function _identifier( node )
 {
@@ -190,7 +199,7 @@ function _identifier( node )
 export function identifier( node, noThrow = false )
 {
     if ( is( node, SyntaxKind.Identifier ) )
-        return identifier( node );
+        return _identifier( node );
 
     if ( !noThrow )
         throw new Error( `Expected Identifier, found ${kind( node )}` );
@@ -230,6 +239,18 @@ export function property_name( node, noThrow = false )
                 throw new Error( `Expected property name, found ${kind( node )}` );
     }
 }
+
+export function module_name( node, noThrow = false )
+{
+    if ( is( node ).a( SyntaxKind.Identifier ) )
+        return _identifier( node );
+    else if ( is( node ).a( SyntaxKind.StringLiteral ) )
+        return node.value;
+
+    if ( !noThrow )
+        throw new Error( `Expected module name, found ${kind( node )}` );
+}
+
 
 function binding_pattern( node, noThrow = false )
 {
@@ -273,13 +294,23 @@ export function declare_handler( handler, ...kinds )
 
 export const handle_type = ( kind, node ) => handle_kind( kind, null, node );
 
-export const handle_kind = ( kind, name, node ) => {
-    if ( handlers.has( kind ) ) return handlers.get( kind )( name, node );
+export const handle_kind = ( _kind, name, node ) => {
+    if ( !name && !node )
+    {
+        node = _kind;
+        _kind = node.kind;
+    }
 
-    throw new Error( `No handler for ${SyntaxKind[ kind ]}` );
+    if ( handlers.has( _kind ) ) {
+        // console.error( `kind handler for "${kind(_kind)}", name: ${name}` );
+        return handlers.get( _kind )( name, node );
+    }
+
+    node_fatal( `No handler for ${SyntaxKind[ _kind ]}`, node );
+    throw new Error( `No handler for ${SyntaxKind[ _kind ]}` );
 };
 
-const modifierFlags = {
+export const modifierFlags = {
     [ SyntaxKind.AbstractKeyword ]:  'isAbstract',
     [ SyntaxKind.AsyncKeyword ]:     'isAsync',
     [ SyntaxKind.ConstKeyword ]:     'isConst',

@@ -3,12 +3,11 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
 "use strict";
 
 import { get_options, logger, safe }                              from "./utils";
 import { DEBUG }                                                  from "./constants";
-import { AnyType, BooleanType, NumberType, StringType, VoidType } from "./classes";
+
 const { SCOPE: { FINAL, SYMBOL, SCOPE, EXTENDED }, LINENUMBER } = DEBUG;
 const TAB_SIZE = 4;
 const right = indent => ' '.repeat( indent * TAB_SIZE );
@@ -49,6 +48,10 @@ export class Scope
         this.logger.log( ...args );
     }
 
+    /**
+     * @param {BindingInfo} own
+     * @return {Scope}
+     */
     set_owner( own )
     {
         this.owner = own;
@@ -59,13 +62,19 @@ export class Scope
 
     bind( binding )
     {
+        if ( binding.isBound ) return binding;
+
+        binding.isBound = true;
         this.add( binding.name, binding );
+
+        return binding;
     }
 
     add( name, binding )
     {
+        // binding.declaration = null;     // Removed because the AST is huge when printing out debug info
         this.symbols.set( name, binding );
-        binding.type.boundTo = name;
+        if ( binding.type ) binding.type.boundTo = binding;
         binding.scope = this;
 
         if ( Scope.DEBUG & SYMBOL )
@@ -90,7 +99,7 @@ export class Scope
     }
 
     /**
-     * @param own
+     * @param {BindingInfo} own
      * @return {Scope}
      */
     add_inner( own )
@@ -126,7 +135,7 @@ export class Scope
     find( predicate, localOnly = false )
     {
         for ( const [ name, binding ] of this.symbols )
-            if ( predicate( name, binding ) ) return { name, binding };
+            if ( predicate( name, binding.type ) ) return { name, binding };
 
         if ( this.outer && !localOnly )
             this.outer.find( predicate );
@@ -155,6 +164,11 @@ export class Scope
         const scopeSyms = `[symbols: ${this.numSymbols()}/${this.numSymbols( false )}, scopes: ${this.numScopes()}/${this.numScopes( false )}]`;
 
         const selfSymbols = this.isEmpty() ? '' : `${right( indent )}${name} ${scopeSyms} =>\n${this.toString( indent + 1 )}`;
+        if ( indent === 2 )
+        {
+            // return selfSymbols + ', inner length = ' + this.inner.length + '\n' +
+            //        this.inner.map( s => `  KEYS(${s.symbols.size}): ${[ ...s.symbols.keys() ].map( k => typeof k )}, inner length: ${s.inner.length}` ).join( '\n' );
+        }
         const childSymbols = this.inner.length ? this.inner.map( s => s.stringify( indent + 1 ) ).filter( x => x ).join( '\n\n' ) : '';
 
         return selfSymbols || childSymbols ? `${selfSymbols}\n\n${childSymbols}` : selfSymbols ? `${selfSymbols}` : '';
@@ -216,12 +230,12 @@ export class Scope
     static descend( scope )
     {
         Scope.stack.push( Scope.current );
-        Scope.current = scope;
+        return Scope.current = scope;
     }
 
     static ascend()
     {
-        Scope.current = Scope.stack.pop();
+        return Scope.current = Scope.stack.pop();
     }
 
     /**
@@ -233,28 +247,10 @@ export class Scope
      */
     static str_symbol( indent, name, typeName, type )
     {
-        const source = () => typeof type.cloc === 'function' ? ` // ${type.cloc()} <-- ${type.ploc()}` : '';
+        const cname = c => c && c.constructor && c.constructor.name || 'no c name';
+        const source = () => typeof type.cloc === 'function' ? ` // ${type.cloc()} <-- ${type.ploc()} [${cname(type)}]` : '';
 
         return `${right( indent )}${safe( name )}: ${typeName} ${LINENUMBER ? source() : ''}`;
-    }
-
-    static init()
-    {
-        const autoAdd = [
-            [ 'any', AnyType ],
-            [ 'number', NumberType ],
-            [ 'string', StringType ],
-            [ 'boolean', BooleanType ],
-            [ 'bool', BooleanType ],
-            [ 'void', VoidType ]
-        ];
-
-        autoAdd.forEach( ( [ name, Klass ] ) => {
-            const kls = new Klass();
-
-            kls.isPrimitive = true;
-            Scope.global.bind( { name, type: kls } );
-        } );
     }
 }
 

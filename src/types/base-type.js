@@ -5,6 +5,8 @@
  *******************************************************************************/
 "use strict";
 
+import { Scope } from "../scope";
+
 function source_info( stack, offset )
 {
     // const exclusions = new RegExp( String.raw`${selfName}|named-object|anonymous` );
@@ -20,11 +22,13 @@ export class Type
 {
     /**
      * @param {string} name
+     * @param {boolean} [hasScope=false]
      */
-    constructor( name )
+    constructor( name, hasScope = false )
     {
-        this.name = name;
-        this.__name = this.__name || name;
+        this.typeName = name;
+        this.scope = hasScope ? Scope.current.add_inner() : null;
+
         this.isSignature = false;
         this.isFunction = false;
         this.isResolved = false;
@@ -35,13 +39,14 @@ export class Type
         this.isPrimitive = false;
         this.isInterface = false;
         this.isMapped = false;
-        this.scope = null;
+        this.boundTo = null;
+
 
         const stack = new Error().stack.split( /\r?\n/ );
-        const trace = source_info( stack, 2 );
+        const trace = source_info( stack, 3 );
         this.__debug = {
             creator: trace,
-            pred:    source_info( stack, trace.traceOffset + 3 )
+            pred:    source_info( stack, trace.traceOffset + 4 )
         };
     }
 
@@ -61,8 +66,13 @@ export class Type
 
     }
 
+    boundName()
+    {
+        return this.toString();
+    }
+
     toString()
     {
-        return this.__name || this.name || this.constructor.name || '<no type name>';
+        return this.boundTo ? this.boundTo.name : 'no binding';
     }
 }

@@ -5,22 +5,47 @@
  *******************************************************************************/
 "use strict";
 
-import { type } from "typeofs";
+import { type }       from "typeofs";
+import { SyntaxKind } from "./ts-helpers";
 
 const
     chalk       = require( 'chalk' ),
     sig         = require( 'signale' ),
     util        = require( 'util' ),
 
-    CALL          = Symbol.for( '()' ),
-    CONSTRUCTOR   = Symbol.for( 'new' ),
-    ANONYMOUS    = Symbol.for( 'anonymous' ),
+    CALL        = Symbol.for( '()' ),
+    CONSTRUCTOR = Symbol.for( 'new' ),
+    ANONYMOUS   = Symbol.for( 'anonymous' ),
+
+    FORMAL      = 'formal',
+    TYPE        = 'type',
 
     { inspect } = util,
     $           = ( o, d = 4 ) => inspect( o, { depth: d } );
 
 let options = { verbose: false };
 let create_type;
+let metaInfo;
+let errorNode;
+
+export const no_parent = o => ( { ...o, parent: null } );
+export const debug_name = o => o && o.kind && !o.__kind ? ( o.__kind = SyntaxKind[ o.kind ], o ) : o;
+
+export const set_meta = ( fn, o ) => metaInfo = { ...o, fileName: fn };
+export const set_error_node = node => errorNode = node;
+
+export const node_error = ( msg, node, opts ) => metaInfo.reporters.error( msg, node, opts );
+export const node_fatal = ( msg, node = errorNode, opts = {} ) => {
+    const r = metaInfo.reporters;
+    const source = r.getSourceFileOfNode( node );
+    const txt = r.getSourceTextOfNodeFromSourceFile( source, node );
+
+    console.error( msg );
+    console.error( `${source.fileName}, line ${r.getLineNumberOfNode( node )}: ${txt}` );
+    if ( !opts.noThrow ) throw new Error( msg );
+    // metaInfo.reporters.fatal( msg, node, opts );
+};
+export const node_warn = ( msg, node, opts ) => metaInfo.reporters.warn( msg, node, opts );
 
 export function set_options( opts )
 {
@@ -29,7 +54,8 @@ export function set_options( opts )
 
 export function get_options() { return options; }
 
-export function type_creator( _create_type ) {
+export function type_creator( _create_type )
+{
     if ( typeof _create_type === 'function' )
         return create_type = _create_type;
 
@@ -58,7 +84,7 @@ const fatal = e => {
 
 let tmpCount = 0;
 
-const tmpName = prefix => Symbol.for( `__$TMP_${prefix}_${(++tmpCount).toString().padStart( 10, '0' )}__` );
+const tmpName = prefix => Symbol.for( `__$TMP_${prefix}_${( ++tmpCount ).toString().padStart( 10, '0' )}__` );
 
 /**
  * @param {string|number} a
@@ -156,6 +182,8 @@ export function positionIsSynthesized( pos )
     return !( pos >= 0 );
 }
 
+const keyCount = o => Object.keys( o ).length;
+
 function collapse( t )
 {
     if ( !t ) return t;
@@ -194,6 +222,15 @@ function _collapse( t, field = 'typeName', sub = field )
     return t;
 }
 
+function add_to_list( list, item )
+{
+    if ( !list )
+        return [ item ];
+    else if ( !Array.isArray( list ) )
+        return [ list, item ];
+
+    return [ ...list, item ];
+}
 
 export {
     collapse,
@@ -210,5 +247,9 @@ export {
     italic,
     logger,
     fatal,
-    safe
+    safe,
+    keyCount,
+    FORMAL,
+    TYPE,
+    add_to_list
 };

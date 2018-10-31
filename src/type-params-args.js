@@ -9,7 +9,7 @@
 "use strict";
 
 import { mix }                             from "mixwith";
-import { Type }                            from "./base-type";
+import { Type }                            from "./types/base-type";
 import { INamedObject }                    from "./named-object";
 import { declare_handler, identifier, is } from "./ts-utils";
 import { SyntaxKind }                      from "./ts-helpers";

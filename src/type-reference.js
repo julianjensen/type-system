@@ -3,15 +3,11 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
-
-
-
 "use strict";
 
 import { NamedObject }                               from "./named-object";
 import { Scope }                                     from "./scope";
-import { safe, type_creator }                        from "./utils";
+import { $, safe, type_creator }                     from "./utils";
 import { declare_handler, entity_name, handle_type } from "./ts-utils";
 import { SyntaxKind }                                from "./ts-helpers";
 
@@ -68,13 +64,15 @@ export class TypeReference extends NamedObject
 
         if ( !this.isResolved ) return safe( this.name ) + ta + "*";
 
+        return $( this.name );
+
         if ( this.resolvesTo instanceof TypeReference )
             return this.resolvesTo.toString() + ta + '^';
 
-        const name = this.resolvesTo.name || this.resolvesTo.__name;
-        const debugName = this.resolvesTo.__name || this.resolvesTo.name;
-
-        return name === debugName ? `${name}${ta}~` : `${name} (${debugName})${ta}~`;
+        // const name = this.resolvesTo.name || this.resolvesTo.__name;
+        // const debugName = this.resolvesTo.__name || this.resolvesTo.name;
+        //
+        // return name === debugName ? `${name}${ta}~` : `${name} (${debugName})${ta}~`;
     }
 
     /**

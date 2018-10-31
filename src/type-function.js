@@ -3,20 +3,16 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
-
-
-
 "use strict";
 
-import { Type }                                                             from "./base-type";
+import { Type }                                                             from "./types/base-type";
 import { ANONYMOUS, CALL, CONSTRUCTOR, italic, type_creator }               from "./utils";
 import { Scope }                                                            from "./scope";
 import { ObjectType }                                                       from "./instance";
 import { binding_name, declare_handler, identifier, modify, property_name } from "./ts-utils";
 import { SyntaxKind }                                                       from "./ts-helpers";
 import { NamedObject }                                                      from "./named-object";
-import { declare_types }                                                    from "./create-type";
+import { declaration }                                                    from "./create-type";
 
 /**
  * @extends Type
@@ -45,7 +41,7 @@ export class Signature extends Type
      */
     static read( node, decl )
     {
-        const scope = Scope.descend( Scope.current.add_inner() );
+        Scope.descend( Scope.current.add_inner() );
         const type = decl.type;
 
         type.parameters = node.parameters.map( ( p, i ) => {
@@ -55,7 +51,7 @@ export class Signature extends Type
 
             type.parameterIndex( i );
             modify( p, type );
-            scope.bind( { name, type, declaration: p } );
+            Scope.current.bind( { name, type, declaration: p } );
         } );
 
         if ( node.typeParameters && node.typeParameters.length )
@@ -69,9 +65,9 @@ export class Signature extends Type
             /**
              * @type {TypeParameterInfo[]}
              */
-            type.typeParameters = node.typeParameters.map( declare_types );
+            type.typeParameters = node.typeParameters.map( declaration );
             type.typeParameters.forEach( ( t, i ) => {
-                scope.bind( t );
+                Scope.current.bind( t );
                 t.type.parameterIndex( i );
                 modify( t.declaration, t.type );
             } );
@@ -79,6 +75,14 @@ export class Signature extends Type
 
         if ( decl.hasOwnProperty( 'type' ) )
             type.type = modify( node.type, type_creator( node.type ) );
+
+        const sig = new Signature( decl.name );
+        if ( decl.type ) sig.type = type.type;
+        sig.parameters = type.parameters;
+
+        Scope.ascend();
+
+        return { name: decl.name, type: sig, declaration: decl };
     }
 
     /**
@@ -205,3 +209,4 @@ export class FunctionType extends ObjectType
         this.signatures = [];
     }
 }
+

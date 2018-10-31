@@ -3,12 +3,11 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
 "use strict";
 
 import { Scope }                         from "./scope";
 import { isObject, isString, log, safe } from "./utils";
-import { ObjectType }                    from "./instance";
+// import { ObjectType }                    from "./instance";
 import { TypeParameter }                 from "./type-params-args";
 
 let create_type;
@@ -72,67 +71,67 @@ export function create_type_parameters( typeParameters, index )
     return typeParameters.map( create_type_parameter );
 }
 
+// /**
+//  * @param {string} name
+//  * @param {Signature} sig
+//  * @param {object} decl
+//  * @return {ObjectType|FunctionType}
+//  */
+// export function wrap_function( name, sig, decl )
+// {
+//     log.signature( "Wrapping '%s' inside function", safe( name ) );
+//     let func = Scope.current.resolve( name );
+//
+//     if ( !func )
+//     {
+//         func = new ObjectType( name );
+//         func.signatures.push( sig );
+//         Scope.current.bind( { name, type: func, declaration: decl } );
+//     }
+//     else
+//     {
+//         func.type.signatures.push( sig );
+//         log.signature( "Adding extra overloasded signature tp '%s'", name );
+//     }
+//
+//     return func;
+// }
+
 /**
  * @param {string} name
- * @param {Signature} sig
  * @param {object} decl
  * @return {ObjectType|FunctionType}
  */
-export function wrap_function( name, sig, decl )
-{
-    log.signature( "Wrapping '%s' inside function", safe( name ) );
-    let func = Scope.current.resolve( name );
-
-    if ( !func )
-    {
-        func = new ObjectType( name );
-        func.signatures.push( sig );
-        Scope.current.bind( { name, type: func, declaration: decl } );
-    }
-    else
-    {
-        func.type.signatures.push( sig );
-        log.signature( "Adding extra overloasded signature tp '%s'", name );
-    }
-
-    return func;
-}
-
-/**
- * @param {string} name
- * @param {object} decl
- * @return {ObjectType|FunctionType}
- */
-export function create_signature_in_function( name, decl )
-{
-    const sig = create_type( decl, name );
-
-    return wrap_function( name, sig, decl );
-}
-
-/**
- *
- * @param {string} name
- * @param {object} def
- * @return {Type}
- */
-export function declare_var( name, def )
-{
-    if ( def && def.decl ) log( def.decl );
-
-    const type = create_type( def, name );
-
-    if ( type.isSignature )
-    {
-        const f = new ObjectType( name );
-        f.signatures.push( type );
-        Scope.current.bind( { name, type, declaration: def } );
-    }
-    else
-        Scope.current.bind( { name, type, declaration: def } );
-
-    return type;
-}
+// export function create_signature_in_function( name, decl )
+// {
+//     const sig = create_type( decl, name );
+//
+//     return wrap_function( name, sig, decl );
+// }
+//
+// /**
+//  *
+//  * @param {string} name
+//  * @param {object} def
+//  * @return {Type}
+//  */
+// export function declare_var( name, def )
+// {
+//     if ( def && def.decl ) log( def.decl );
+//
+//     const type = create_type( def, name );
+//
+//     if ( type.isSignature )
+//     {
+//         const f = new ObjectType( name );
+//         f.signatures.push( type );
+//         Scope.current.bind( { name, type, declaration: def } );
+//     }
+//     else
+//         Scope.current.bind( { name, type, declaration: def } );
+//
+//     return type;
+// }
 
 export function init( _create_type )
 {

@@ -5,9 +5,6 @@
  * @date Fri Aug 17 2018
  *********************************************************************************************************************/
 
-
-
-
 "use strict";
 
 import { default as fsWithCallbacks } from "fs";
@@ -15,16 +12,16 @@ import { default as fsWithCallbacks } from "fs";
 const fs = fsWithCallbacks.promises;
 
 import { create_type, declaration }                               from "./src/create-type";
-import { TypeReference }                                          from "./src/type-reference";
-import { log, $, fatal, warn, set_options }                       from "./src/utils";
-import { Scope }                                                                  from "./src/scope";
-import { DEBUG }                                                                  from "./src/constants";
-import { init }                                                                   from "./src/type-utils";
-import { default as program }                                                     from "commander";
+import { log, $, fatal, warn, set_options, set_meta, node_fatal } from "./src/utils";
+import { Scope }                                                  from "./src/scope";
+import { DEBUG }                                                  from "./src/constants";
+// import { init }                                                   from "./src/type-utils";
+import { default as program }                                     from "commander";
 // import { Parser }                     from "./src/parser";
-import * as ts                                                                    from 'typescript';
-import { simple_ts_ast, to_safe_string } from "./src/ts-symbols";
-import globby                                                                     from "globby";
+import * as ts                                                    from 'typescript';
+import { simple_ts_ast, to_safe_string }                          from "./src/ts-symbols";
+import globby                                         from "globby";
+import { primitive_init }                   from "./src/types/primitives";
 
 const
     _options = {},
@@ -93,7 +90,7 @@ if ( !options.command )
     program.help();
 
 set_options( options );
-Scope.init();
+primitive_init();
 init( create_type );
 
 const nameList = [ 'identity', 'strIdent', 'HasLength', 'twoTyped', 'Hmmm', 'explicit', 'X', 'Y', 'abc', 'def', 'Abc' ];
@@ -103,6 +100,34 @@ async function process_all()
     const expanded = await globby( options.files );
 
     const [ files ] = await Promise.all( expanded.map( simple_ts_ast ) );
+    const filesRead = Object.keys( files );
+
+    console.error( `Read ${filesRead.length} file${filesRead.length !== 1 ? 's' : ''}` );
+
+    try
+    {
+        filesRead.forEach( key => {
+            const file = files[ key ];
+
+            set_meta( key, file );
+            console.error( `Starting declaration for ${key}` );
+            console.error( file.reporters.file_info() );
+            declaration( file.ast );
+            console.error( `Ending declaration for ${key}` );
+        } );
+        // declaration( files[ Object.keys( files )[ 0 ] ].ast );
+    }
+    catch ( e )
+    {
+        node_fatal( e.message, undefined, { noThrow: true } );
+        console.error( "ERROR:", e );
+        log.error( e );
+    }
+    console.error( "STRINGIFY" );
+    console.error( Scope.global.stringify() );
+    // console.error( `${Scope.global}` );
+    // console.error( $( Scope.global, 6 ) );
+
     let safe = to_safe_string( files );
 
     safe = Object.keys( safe ).reduce( ( output, key ) => {

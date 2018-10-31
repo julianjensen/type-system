@@ -10,7 +10,7 @@ import { default as fsWithCallbacks }                             from "fs";
 import { fatal, warn }                                            from "./utils";
 import { Scope }                                                  from "./scope";
 import { TypeReference }                                          from "./type-reference";
-import { AnyType, BooleanType, NumberType, StringType, VoidType } from "./classes";
+import { AnyType, BooleanType, NumberType, StringType, VoidType } from "./types/primitives";
 import { DEBUG }                                                  from "./constants";
 import { declaration }                                            from "./create-type";
 

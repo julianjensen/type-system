@@ -103,16 +103,16 @@ export function add_types( type )
         switch ( type.literal.kind )
         {
             case SyntaxKind.StringLiteral:
-                return `'${type.literal.text}' ${ident( type )}`;
+                return type.literal.text; // `'${type.literal.text}' ${ident( type )}`;
 
             case SyntaxKind.NumericLiteral:
-                return type.literal.text + ident( type );
+                return type.literal.text; // + ident( type );
 
             case SyntaxKind.TrueKeyword:
-                return 'true' + ident( type );
+                return 'true'; // + ident( type );
 
             case SyntaxKind.FalseKeyword:
-                return 'false' + ident( type );
+                return 'false'; // + ident( type );
 
             default:
                 return `Unknown literal "${SyntaxKind[ type.literal.kind ]}" ${ident( type )}`;
