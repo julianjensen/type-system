@@ -16,8 +16,11 @@ export class ModuleType extends Type
         super( 'namespace', true );
     }
 
+    /**
+     * @return {string}
+     */
     toString()
     {
-        return 'namespace ' + this.boundName();
+        return 'namespace ' + this.boundTo.name;
     }
 }

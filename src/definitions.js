@@ -8,6 +8,9 @@
  * @property {string} [parameter]     - Add function parameters to symbols as variable but point to parameter in func. Values: "formal" or "type"
  * @property {number} [parameterIndex]     - Add function parameters to symbols as variable but point to parameter in func.
  * @property {?Definition} firstDefinition
+ * @property {?Type} [constraint]
+ * @property {boolean} [varDecl]
+ * @property {boolean} [keyOf]
  * @property {boolean} [isAbstract]
  * @property {boolean} [isAsync]
  * @property {boolean} [isConst]

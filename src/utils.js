@@ -6,7 +6,7 @@
 "use strict";
 
 import { type }       from "typeofs";
-import { SyntaxKind } from "./ts-helpers";
+import { SyntaxKind } from "typescript";
 
 const
     chalk       = require( 'chalk' ),

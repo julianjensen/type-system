@@ -40,6 +40,7 @@ const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
  * }
  *
  * @class Binding
+ * @implements {BindingInfo}
  */
 export class Binding
 {

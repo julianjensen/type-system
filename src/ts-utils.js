@@ -3,14 +3,13 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
-
 "use strict";
 
-import { SyntaxKind }   from "./ts-helpers";
-import { unescapeName } from "./named-object";
-import { node_fatal }   from "./utils";
-
+import { SyntaxKind }                             from "typescript";
+import { unescapeName }                           from "./named-object";
+import { FORMAL, node_fatal, TYPE, type_creator } from "./utils";
+import { Scope }                                  from "./scope";
+import { Type }                                   from "./types/base-type";
 
 export const tsInfo = {
     hasType:              [
@@ -165,6 +164,13 @@ export const tsInfo = {
         SyntaxKind.JSDocSignature
     ]
 };
+
+export function isKeyword( node )
+{
+    let name = typeof node !== 'string' ? SyntaxKind[ node.kind ] : node;
+
+    return name.endsWith( 'Keyword' );
+}
 
 export function is( node, ..._kinds )
 {
@@ -351,6 +357,132 @@ export function modify( node, type )
         type.isRest = true;
 
     return type;
+}
+
+export function read_parameters( params )
+{
+    if ( !params || !params.length ) return null;
+
+    return params.map( ( p, i ) => {
+        const name = binding_name( p.name );
+        /** @type {Type|NamedObject} */
+        const type = type_creator( p.type, name );
+
+        const binding = modify( p, { name, type, declaration: p, parameter: FORMAL, parameterIndex: i } );
+        return Scope.current.bind( binding );
+    } );
+}
+
+export function read_type_parameters( params )
+{
+    if ( !params || !params.length ) return null;
+
+    return params.map( create_type_parameter );
+}
+
+export function create_type_parameter( t, i )
+{
+    const name = identifier( t.name );
+    let constraint;
+    let keyOf = false;
+
+    if ( t.constraint )
+    {
+        const c = t.constraint;
+
+        if ( c.kind === SyntaxKind.TypeOperator )
+        {
+            constraint = type_creator( c.type );
+            keyOf = true;
+        }
+        else
+            constraint = type_creator( c );
+    }
+
+    /** @type {BindingInfo} */
+    const binding = {
+        name,
+        type: constraint,
+        declaration: t,
+        parameter: TYPE,
+        parameterIndex: i
+    };
+
+    if ( keyOf ) binding.keyOf = true;
+
+    return Scope.current.bind( modify( t, binding ) );
+}
+
+/**
+ * @param {BindingInfo|Type|Array<BindingInfo|Type>|undefined} p
+ * @return {string}
+ */
+export function stringify_type_parargs( p )
+{
+    if ( !p ) return '';
+
+    if ( !Array.isArray( p ) ) return `${p}`;
+
+    if ( !p.length ) return '<>';
+
+    return `<${p.map( arg => arg instanceof Type ? `${arg}` : stringify_binding( arg ) ).join( ', ' )}>`;
+}
+
+/**
+ * @param {BindingInfo} b
+ * @return {string}
+ */
+export function stringify_binding( b )
+{
+    if ( b.parameter === TYPE )
+    {
+        const c = b.constraint && !b.keyOf ? ` extends ${b.constraint}` : ` in keyof ${b.constraint}`;
+
+        return `${b.name}${c}`;
+    }
+
+    if ( b.name && b.varDecl )
+        return `${b.name}: ${b.type}`;
+
+    return `${b.type}`;
+}
+
+export function read_type_arguments( params )
+{
+    if ( !params || !params.length ) return null;
+
+    return params.map( create_type_argument );
+}
+
+export function create_type_argument( t, i )
+{
+    if ( isKeyword( t ) )
+        return keyword_to_binding( SyntaxKind[ t.kind ] );
+
+    if ( t.kind !== SyntaxKind.TypeReference )
+        return type_creator( t );
+
+    const name = identifier( t.typeName );
+
+    /** @type {BindingInfo} */
+    const binding = {
+        name,
+        type: t.constraint && type_creator( t.constraint, name ),
+        declaration: t,
+        parameter: TYPE,
+        parameterIndex: i
+    };
+
+    return Scope.current.bind( modify( t, binding ) );
+}
+
+export function keyword_to_binding( keyword )
+{
+    const kw = typeof keyword === 'string' ? keyword : SyntaxKind[ keyword.kind ];
+
+    const k = kw.replace( /^(.*)Keyword$/, '$1' ).toLowerCase();
+
+    return Scope.current.resolve( k );
 }
 
 /*

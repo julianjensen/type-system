@@ -3,15 +3,26 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
+
 "use strict";
 
-import { get_options, logger, safe }                              from "./utils";
-import { DEBUG }                                                  from "./constants";
+import { get_options, logger, safe } from "./utils";
+import { DEBUG }                     from "./constants";
+import { SyntaxKind }                from "typescript";
 
 const { SCOPE: { FINAL, SYMBOL, SCOPE, EXTENDED }, LINENUMBER } = DEBUG;
 const TAB_SIZE = 4;
 const right = indent => ' '.repeat( indent * TAB_SIZE );
 const allScopes = new Set();
+
+const getSourceFile = binding => {
+    let n = Array.isArray( binding.declaration ) ? binding.declaration[ 0 ] : binding.declaration;
+
+    while ( n && n.kind !== SyntaxKind.SourceFile )
+        n = n.parent;
+
+    return n.fileName;
+};
 
 /**
  * @class
@@ -99,7 +110,7 @@ export class Scope
     }
 
     /**
-     * @param {BindingInfo} own
+     * @param {BindingInfo} [own]
      * @return {Scope}
      */
     add_inner( own )
@@ -147,31 +158,41 @@ export class Scope
      */
     toString( indent = 0 )
     {
-        return [ ...this.symbols.entries() ].map( ( [ name, { type } ] ) => Scope.str_symbol( indent, name, `${type}`, type ) ).join( '\n' );
+        return [ ...this.symbols.entries() ].map( ( [ , binding ] ) => Scope.str_symbol( indent, binding ) ).join( '\n' ); // name, `${type}`, type ) ).join( '\n' );
     }
 
     getOwnSymbols()
     {
-        return [ ...this.symbols.entries() ].map( ( [ name, { type } ] ) => Scope.str_symbol( 0, name, `${type}`, type ) );
+        return [ ...this.symbols.entries() ].map( ( [ , binding ] ) => Scope.str_symbol( 0, binding ) ); // name, `${type}`, type ) );
     }
 
     stringify( indent = 0 )
     {
-        let name = this.owner && `${this.owner}`;
-
-        if ( !name ) name = 'null';
-
-        const scopeSyms = `[symbols: ${this.numSymbols()}/${this.numSymbols( false )}, scopes: ${this.numScopes()}/${this.numScopes( false )}]`;
-
-        const selfSymbols = this.isEmpty() ? '' : `${right( indent )}${name} ${scopeSyms} =>\n${this.toString( indent + 1 )}`;
-        if ( indent === 2 )
+        try
         {
-            // return selfSymbols + ', inner length = ' + this.inner.length + '\n' +
-            //        this.inner.map( s => `  KEYS(${s.symbols.size}): ${[ ...s.symbols.keys() ].map( k => typeof k )}, inner length: ${s.inner.length}` ).join( '\n' );
-        }
-        const childSymbols = this.inner.length ? this.inner.map( s => s.stringify( indent + 1 ) ).filter( x => x ).join( '\n\n' ) : '';
+            let name = this.owner && `${this.owner}`;
 
-        return selfSymbols || childSymbols ? `${selfSymbols}\n\n${childSymbols}` : selfSymbols ? `${selfSymbols}` : '';
+            if ( !name ) name = 'null';
+
+            const scopeSyms = `[symbols: ${this.numSymbols()}/${this.numSymbols( false )}, scopes: ${this.numScopes()}/${this.numScopes( false )}]`;
+            const selfSymbols = this.isEmpty() ? '' : `${right( indent )}${name} ${scopeSyms} =>\n${this.toString( indent + 1 )}`;
+            return selfSymbols;
+            if ( indent === 2 )
+            {
+                // return selfSymbols + ', inner length = ' + this.inner.length + '\n' +
+                //        this.inner.map( s => `  KEYS(${s.symbols.size}): ${[ ...s.symbols.keys() ].map( k => typeof k )}, inner length: ${s.inner.length}` ).join( '\n' );
+            }
+            // const childSymbols = this.inner.length ? this.inner.map( s => s.stringify( indent + 1 ) ).filter( x => x ).join( '\n\n' ) : '';
+            const childSymbols = 'CHILDREN';
+
+            return selfSymbols || childSymbols ? `${selfSymbols}\n\n${childSymbols}` : selfSymbols ? `${selfSymbols}` : '';
+        }
+        catch ( err )
+        {
+            console.error( 'stringify bomb' );
+            console.error( err );
+            process.exit( 1 );
+        }
     }
 
     short()
@@ -240,15 +261,23 @@ export class Scope
 
     /**
      * @param indent
-     * @param name
-     * @param typeName
-     * @param type
+     * @param {BindingInfo} binding
      * @return {string}
      */
-    static str_symbol( indent, name, typeName, type )
+    static str_symbol( indent, binding ) // name, typeName, type )
     {
+        const { name, type, varDecl } = binding;
+        let typeName = `${type}`;
         const cname = c => c && c.constructor && c.constructor.name || 'no c name';
-        const source = () => typeof type.cloc === 'function' ? ` // ${type.cloc()} <-- ${type.ploc()} [${cname(type)}]` : '';
+        const source = () => type && typeof type.cloc === 'function' ? ` // ${type.cloc()} <-- ${type.ploc()} [${cname( type )}]` : '';
+
+        if ( typeName.startsWith( '[object Object]' ) )
+            typeName = 'ERROR, no toString() for ' + cname( type ) + ', source file: ' + getSourceFile( binding );
+        else if ( typeName === 'undefined' )
+            typeName = 'ERROR, type is undefined for ' + safe( name ) + ', source file: ' + getSourceFile( binding );
+
+        if ( !varDecl )
+            return `${right( indent )}${typeName} ${LINENUMBER ? source() : ''}`;
 
         return `${right( indent )}${safe( name )}: ${typeName} ${LINENUMBER ? source() : ''}`;
     }

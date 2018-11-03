@@ -59,6 +59,16 @@ class VoidType extends Type
 }
 
 /**
+ * @extends Type
+ */
+class ThisType extends Type
+{
+    /** */
+    constructor()
+    { super( 'this' ); }
+}
+
+/**
  *
  */
 export function primitive_init()
@@ -69,7 +79,8 @@ export function primitive_init()
         [ 'string', StringType ],
         [ 'boolean', BooleanType ],
         [ 'bool', BooleanType ],
-        [ 'void', VoidType ]
+        [ 'void', VoidType ],
+        [ 'this', ThisType ]
     ];
 
     autoAdd.forEach( ( [ name, Klass ] ) => {

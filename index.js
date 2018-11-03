@@ -91,7 +91,7 @@ if ( !options.command )
 
 set_options( options );
 primitive_init();
-init( create_type );
+// init( create_type );
 
 const nameList = [ 'identity', 'strIdent', 'HasLength', 'twoTyped', 'Hmmm', 'explicit', 'X', 'Y', 'abc', 'def', 'Abc' ];
 

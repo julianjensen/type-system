@@ -15,7 +15,7 @@ export class IndexedType extends Type
     /** */
     constructor()
     {
-        super( 'indexed' );
+        super( 'indexed', true );
         this._objectType = null;
         this._indexType = null;
     }
@@ -60,7 +60,7 @@ export class MappedType extends Type
     /** */
     constructor()
     {
-        super( 'mapped' );
+        super( 'mapped', true );
         this.isMapped = true;
         this._from = null;
         this._to = null;
@@ -94,5 +94,13 @@ export class MappedType extends Type
         }
 
         return this._to;
+    }
+
+    /**
+     * @return {string}
+     */
+    toString()
+    {
+        return `${this.from} in ${this.to}`
     }
 }

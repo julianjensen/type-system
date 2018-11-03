@@ -12,9 +12,16 @@ function source_info( stack, offset )
     // const exclusions = new RegExp( String.raw`${selfName}|named-object|anonymous` );
     const exclusions = new RegExp( String.raw`named-object|anonymous` );
     let foundAtOffset;
-    const [ , code, fpath, line ] = stack.slice( offset ).find( ( line, i ) => ( !exclusions.test( line ) && ( foundAtOffset = i ) ) ).match( /^\s*at\s(.*?)\s+\(([^:]+):(\d+).*/ );
+    const [ source, code, fpath, line ] = stack.slice( offset ).find( ( line, i ) => ( !exclusions.test( line ) && ( foundAtOffset = i ) ) ).match( /^\s*at\s+(.*?)\s+\(([^:]+):(\d+).*/ );
 
-    return { code, file: fpath.substr( __dirname.length + 1 ), line, traceOffset: foundAtOffset };
+    let dirname = __dirname;
+
+    while ( dirname.length && !fpath.startsWith( dirname ) )
+    {
+        dirname = dirname.replace( /^(.*)\/.*$/, '$1' );
+    }
+
+    return { code, file: fpath.substr( dirname.length + 1 ), line, traceOffset: foundAtOffset, source, dirname: __dirname };
 }
 
 /** */
