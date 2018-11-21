@@ -1,11 +1,28 @@
 /**
  * @typedef {object} BindingInfo
- * @property {*} value
- * @property {?IdealType} type
- * @property {Node} [declaration]
- * @property {ActualScope} scope
- * @property {number} [parameter]     - Add function parameters to symbols as variable but point to parameter in func.
- * @property {?Definition} firstDefinition
+ * @property {string} [bindType=BIND_ALLOC],
+ * @property {*} [value]
+ * @property {?string} [name]
+ * @property {?Type} type
+ * @property {ts.TypeNode|ts.Declaration|Array<ts.TypeNode|ts.Declaration>} [declaration]
+ * @property {?Scope} [scope]
+ * @property {string} [parameter]     - Add function parameters to symbols as variable but point to parameter in func. Values: "formal" or "type"
+ * @property {number} [parameterIndex]     - Add function parameters to symbols as variable but point to parameter in func.
+ * @property {?Type} [constraint]
+ * @property {boolean} [varDecl]
+ * @property {boolean} [keyOf]
+ * @property {boolean} [isAbstract]
+ * @property {boolean} [isAsync]
+ * @property {boolean} [isConst]
+ * @property {boolean} [isDeclare]
+ * @property {boolean} [isDefault]
+ * @property {boolean} [isExport]
+ * @property {boolean} [isPublic]
+ * @property {boolean} [isPrivate]
+ * @property {boolean} [isProtected]
+ * @property {boolean} [isReadonly]
+ * @property {boolean} [isStatic]
+ * @property {boolean} [isBound]
  */
 
 /**

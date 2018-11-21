@@ -44,6 +44,7 @@ export function create_reporters( fileName, source )
     const
         loc_info = create_loc_info();
 
+    console.error( `reporter for "${fileName}" with ${lineOffsets.length} lines` );
     /**
      * @param {Node} node
      * @return {[ number, number ]}
@@ -210,6 +211,11 @@ export function create_reporters( fileName, source )
         return [ lineNumber = binary_search( pos, lineOffsets ), pos - lineOffsets[ lineNumber ] ];
     }
 
+    function get_source_info_for_node( node )
+    {
+        return loc_info( node.pos, node.end );
+    }
+
     /**
      * @return {function(*=, *=)}
      */
@@ -275,6 +281,16 @@ export function create_reporters( fileName, source )
     {
         assert( line >= 0 );
         return lineOffsets[ line ];
+    }
+
+    function getLineNumberOfNode( node )
+    {
+        let line = 0;
+        const pos = +node.pos;
+
+        while ( pos > lineOffsets[ line ] ) ++line;
+
+        return line + 1;
     }
 
     /**
@@ -455,7 +471,17 @@ export function create_reporters( fileName, source )
         return source.substring( lineOffsets[ lineNumber ], lineOffsets[ lineNumber + 1 ] );
     }
 
+    function file_info()
+    {
+        return `Reporter for "${fileName}" with ${lineOffsets.length - 1} lines`;
+    }
+
     return {
+        file_info,
+        getLineNumberOfNode,
+        getSourceTextOfNodeFromSourceFile,
+        get_source_info_for_node,
+        getSourceFileOfNode,
         getTextOfNodeFromSourceText,
         isRecognizedTripleSlashComment,
         getStartPositionOfLine,

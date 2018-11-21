@@ -1,3 +1,4 @@
+/* eslint-disable operator-linebreak */
 /** ****************************************************************************
  * DESCRIPTION
  * @author julian.jensen
@@ -5,298 +6,216 @@
  *******************************************************************************/
 "use strict";
 
-import { Signature }                                             from "./type-function";
-import chalk                                                     from "chalk";
-import { Scope }                                                 from "./scope";
+import { Scope }         from "./scope";
 import {
-    create_signature_in_function,
-    create_type_parameter,
-    create_type_parameters,
-    declare_var,
-    wrap_function
-}                                                                from "./type-utils";
-import { $, CALL, CONSTRUCTOR, italic, log, warn, type_creator } from "./utils";
-import { TypeReference }                                         from "./type-reference";
-import { ObjectType }                                            from "./instance";
-import { ArrayType, IndexedType, MappedType, Union }             from "./classes";
-import { SyntaxKind }                                            from "./ts-helpers";
-import { handle_kind, handle_type, property_name }               from "./ts-utils";
+    $,
+    log,
+    debug_name,
+    set_error_node,
+    node_error,
+    no_parent,
+    BIND_ALLOC,
+    add_to_list,
+    CONSTRUCTOR,
+    CALL,
+    TYPE,
+    FORMAL, INDEX, CONTEXT
+} from "./utils";
+import "./types/all-types";
+import { ObjectType }    from "./types/object-type";
+import { ModuleType }    from "./types/module";
+import { CallableType }  from "./types/functions";
+import { SyntaxKind }    from "typescript";
+import {
+    handle_kind,
+    identifier,
+    kind,
+    property_name,
+    binding_name, entity_name, kindToType, baseTypesToString
+}                        from "./ts-utils";
+import { Binding }       from "./binding";
+import { TypeParameter } from "./types/type-params-args";
+import { TypeAlias }     from "./types/reference";
 
-/**
- * @param {object} def
- * @param {string} [name]
- * @return {Type}
- */
-export function create_type( def, name = 'anonymous' )
-{
-    if ( typeof def === 'string' )
-    {
-        log.type( `primitive "${def}" for "%s"`, name );
-        log( "primitive resolution for name '%s' is %s", def, Scope.global.resolve( def ).type );
-        return Scope.global.resolve( def ).type;
-    }
-
-    if ( !def )
-        return null;
-
-    if ( typeof def.type === 'object' && def.type !== null && !Array.isArray( def.type ) )
-        def = def.type;
-
-    log.type( `"${def.type || def.kind}" on -> [ "%s" ]`, Object.keys( def ).join( '", "' ) );
-
-    switch ( def.type )
-    {
-        case 'function':
-            return create_signature( def, name );
-
-        case 'reference':
-            const resd = typeof def.typeName === 'string' && Scope.current.resolve( def.typeName );
-
-            if ( resd && resd.type && resd.type.isPrimitive ) return resd.type;
-
-            const r = resd && resd.type || new TypeReference( def.typeName );
-
-            if ( !def.typeArguments || !def.typeArguments.length ) return r;
-
-            r.typeArguments = [ ...def.typeArguments.map( create_type ) ];
-
-            return r;
-
-        case 'typeliteral':
-            const tl = new ObjectType( italic`literal` );
-            const do_decl = d => declaration( tl.name, d );
-
-            Scope.descend( tl.scope );
-            def.members.forEach( do_decl );
-            create_type_parameters( def.typeParameters );
-            Scope.ascend();
-
-            return tl;
-
-        case 'mapped':
-            const mapped = new MappedType( name );
-            const { type, typeParameter } = def.definition;
-
-            Scope.descend( mapped.scope );
-            mapped.from = create_type_parameter( typeParameter, 0 );
-            mapped.to = create_type( type );
-            Scope.ascend();
-
-            return mapped;
-
-        case 'indexed':
-        {
-            const indexed = new IndexedType( name );
-            const { objectType, indexType } = def;
-
-            Scope.descend( indexed.scope );
-            indexed.objectType = create_type( objectType, objectType.typeName );
-            indexed.indexType = create_type( indexType, indexType.typeName );
-            Scope.ascend();
-
-            return indexed;
-        }
-
-        case 'union':
-            const u = new Union( name );
-
-            def.types.forEach( t => u.add( create_type( t ) ) );
-
-            return u;
-
-        case 'array':
-            const at = new ArrayType( name );
-
-            at.elementType = create_type( def.elementType );
-
-            return at;
-
-        default:
-            warn( 'fail on type:', def.type );
-    }
-}
-
-/**
- * @param {object} def
- * @param {string} [name]
- * @return {Signature}
- */
-function create_signature( def, name = 'anonymous' )
-{
-    const sig = new Signature( chalk.italic( name ) );
-
-    Scope.descend( sig.scope );
-
-    def = def.definition || def;
-
-    let pIndex = 0;
-
-    sig.parameters = def.parameters ? def.parameters.map( p => {
-        let param = create_type( p.type, p.name );
-
-        if ( !pIndex && p.name === 'this' )
-            sig.context = param;
-        else
-        {
-            if ( param instanceof Signature )
-                param = wrap_function( p.name, param );
-            Scope.current.bind( { name: p.name, type: param, parameter: pIndex, declaration: p } );
-            param.parameterIndex( pIndex++ );
-        }
-    } ) : [];
-
-    sig.type = create_type( def.returns );
-
-    create_type_parameters( def.typeParameters );
-
-    Scope.ascend();
-
-    return sig;
-}
-
-function handle_function_like( node, scope )
-{
-    const type = handle_type( node.kind, node );
-    let prior = scope.resolve( type.name );
-
-    if ( !prior )
-        prior = new ObjectType( type.name );
-
-    prior.signatures.push( type.type );
-
-    scope.bind( type );
-
-    return type;
-}
-
-/**
- * @typedef {object} DeclarationInfo
- * @property {string} [name]
- * @property {Type} type
- * @property {ts.Node} [declaration]
- */
-/**
- * @param {ts.Node} node
- * @param {Scope} scope
- * @return {DeclarationInfo|Array<DeclarationInfo>}
- */
-export function declare_types( node, scope = Scope.global )
-{
-    let type;
-
-    switch ( node.kind )
-    {
-        case SyntaxKind.VariableStatement:
-            return node.declarationList.map( declare_types );
-
-        case SyntaxKind.VariableDeclaration:
-            return handle_type( node.kind, node.type );
-
-        case SyntaxKind.MethodDeclaration:
-        case SyntaxKind.FunctionDeclaration:
-        case SyntaxKind.MethodSignature:
-        case SyntaxKind.FunctionType:
-            return handle_function_like( node, scope );
-
-        case SyntaxKind.TypeParameter:
-            return handle_type( node.kind, node );
-
-        case SyntaxKind.PropertySignature:
-        case SyntaxKind.PropertyDeclaration:
-            const name = property_name( node.name );
-
-            type = { type: create_type( node.type, name ), name, declaration: node };
-            scope.bind( type );
-            return type;
-
-    }
-}
+const Namespace = ModuleType;
 
 /**
  * @param {string} name
- * @param {object} decl
- * @param {object} [opts={}]
- * @return {Type}
+ * @param {Type} value
+ * @param {ts.Node} def
+ * @return {Binding}
  */
-export function declaration( name, decl, opts = {} )
+function bind_as_parameter( name, value, def )
 {
-    let tpCount;
+    return Scope.current.bind( new Binding( {
+        name,
+        type:        value.baseType,
+        value,
+        declaration: def,
+        parameter:   value instanceof TypeParameter ? TYPE : name === 'this' ? CONTEXT : FORMAL
+    } ) );
+}
 
-    switch ( decl.kind )
+/**
+ * @param {string|Symbol} name
+ * @param {ts.FunctionLikeDeclaration|ts.SignatureDeclaration} node
+ * @param {SimpleFunction} func
+ * @return {*}
+ */
+function add_signature( name, node, func )
+{
+    let parent = Scope.current.resolve( name, true );
+
+    if ( !parent )
     {
-        case 'VariableDeclaration':
-            log.var( `"%s" of type "${decl.type.type}"`, name );
-            return declare_var( name, decl.type );
+        parent = new Binding( { bindType: BIND_ALLOC, name, type: baseTypesToString[ SyntaxKind.FunctionKeyword ], value: new CallableType(), declaration: node } );
+        Scope.current.bind( parent );
+    }
+    else
+        parent.declaration = add_to_list( parent.declaration, node );
 
-        case 'FunctionDeclaration':
-            log.function( name );
-            return create_signature_in_function( name, decl );
+    func.parent = parent;
+    func.funcName = name;
 
-        case 'MethodSignature':
-            log.signature( name );
-            return create_signature_in_function( name, decl );
+    parent.value.add_signature( func );
 
-        case 'CallSignature':
-            log.signature( name );
-            return create_signature_in_function( name, decl );
+    return parent;
+}
 
-        case 'PropertySignature':
-            log.prop( decl.propKey );
-            return declare_var( decl.propKey, decl.typeName );
 
-        case 'TypeAliasDeclaration':
-            log.alias( name );
-            const aref = new TypeReference( name );
-            const reftype = create_type( decl.type, name );
-            reftype.__name = name;
-            aref.resolve( reftype );
-            Scope.current.bind( { name, type: aref, declaration: decl } );
+/**
+ * @param {ts.Node|ts.Declaration|ts.VariableStatement|ts.VariableDeclaration|ts.SourceFile|ts.MethodSignature|ts.TypeReferenceNode|ts.LiteralTypeNode|ts.ClassDeclaration} def
+ * @param {string} [_name]
+ * @param {string} [_type]
+ * @param {Type} [_value]
+ */
+export function declaration( def, _name, _type, _value )
+{
+    if ( !def )
+        return null;
 
-            Scope.descend( reftype.scope );
-            create_type_parameters( decl.typeParameters );
+    let name  = _name,
+        type  = _type,
+        value = _value,
+        binding,
+        scope;
+
+    set_error_node( def );
+    debug_name( def );
+
+    log.type( `"${def.kind ? kind( def.kind ) : def.type}" on -> [ "%s" ]`, Object.keys( def ).join( '", "' ) );
+
+    switch ( def.kind )
+    {
+        case SyntaxKind.SourceFile:
+            Scope.current = Scope.global;
+            def.statements.forEach( declaration );
+            return null;
+
+        case SyntaxKind.ModuleBlock:
+            def.statements.forEach( declaration );
+            return null;
+
+        case SyntaxKind.VariableStatement:
+            def.declarationList.declarations.map( declaration );
+            return null;
+
+        case SyntaxKind.VariableDeclaration:
+            name = identifier( def.name );
+            value = handle_kind( def.type );
+            type = value.baseType;
+            return Scope.current.bind( new Binding( { bindType: BIND_ALLOC, type, name, value, declaration: def, varDecl: true } ) );
+
+        case SyntaxKind.ConstructSignature:
+        case SyntaxKind.Constructor:
+            add_signature( CONSTRUCTOR, def, handle_kind( def ) );
+            break;
+
+        case SyntaxKind.CallSignature:
+            add_signature( CALL, def, handle_kind( def ) );
+            break;
+
+        case SyntaxKind.FunctionDeclaration:
+            add_signature( binding_name( def.name ), def, handle_kind( def ) );
+            break;
+
+        case SyntaxKind.MethodDeclaration:
+        case SyntaxKind.MethodSignature:
+            add_signature( property_name( def.name ), def, handle_kind( def ) );
+            break;
+
+        case SyntaxKind.PropertySignature:
+        case SyntaxKind.PropertyDeclaration:
+            if ( !def.type )
+                console.error( 'no type:', def );
+            name = property_name( def.name );
+            value = handle_kind( def.type );
+            type = value.baseType;
+
+            Scope.current.bind( new Binding( { name, value, type, declaration: def } ) );
+            break;
+
+        case SyntaxKind.ClassDeclaration:
+        case SyntaxKind.InterfaceDeclaration:
+            value = new ObjectType( def.kind === SyntaxKind.InterfaceDeclaration ? 'interface' : 'class' );
+            name = identifier( def.name );
+            type = baseTypesToString[ def.kind ];
+
+            binding = Scope.current.bind( new Binding( { name, value, type, declaration: def } ) );
+            Scope.descend( binding.value.scope );
+
+            def.members.forEach( declaration );
+
+            Scope.ascend();
+            break;
+
+        case SyntaxKind.ModuleDeclaration:
+            name = identifier( def.name );
+            value = new ModuleType();
+            type = kindToType( def );
+            binding = new Binding( { name, value, type, declaration: def } );
+            Scope.current.bind( binding );
+            Scope.descend( value.scope );
+
+            declaration( def.body );
+
+            Scope.ascend();
+            break;
+
+        case SyntaxKind.Parameter:
+            name = identifier( def.name );
+            value = handle_kind( def.type );
+
+            return bind_as_parameter( name, value, def );
+
+        case SyntaxKind.TypeAliasDeclaration:
+            name = entity_name( def.name );
+            value = new TypeAlias();
+            Scope.descend( value.scope );
+
+            value.typeParameters = def.typeParameters && def.typeParameters.map( declaration );
+            value.resolvesTo = handle_kind( def.type );
+
             Scope.ascend();
 
-            return aref;
+            return Scope.current.bind( { name, value, type: value.resolvesTo.baseType, declaration: def } );
 
-        case 'ClassDeclaration':
-        case 'InterfaceDeclaration':
-            const actual = decl.kind === 'ClassDeclaration' ? 'class' : 'interface';
+        case SyntaxKind.IndexSignature:
+            value = handle_kind( def );
+            type = value.baseType;
 
-            const intr = new ObjectType( italic`${actual}` );
+            return Scope.current.bind( { name: INDEX, value, type, declaration: def } );
 
-            tpCount = 0;
+        case SyntaxKind.TypeParameter:
+            name = identifier( def.name );
+            value = handle_kind( def );
 
-            if ( actual === 'class' )
-                intr.isClass = true;
-            else
-                intr.isInterface = true;
-
-            Scope.current.bind( { name, type: intr, declaration: decl } );
-            intr.__name = name;
-
-            Scope.descend( intr.scope );
-
-            const callSym = actual === 'class' ? CONSTRUCTOR : CALL;
-
-            decl.members.forEach( def => {
-                def.decls.forEach( d => {
-                    const _opts = { typeParameterCount: tpCount };
-                    declaration( def.name === 'Call' && d.kind === 'CallSignature' ? callSym : def.name, d, _opts );
-                    tpCount = _opts.typeParameterCount;
-                } );
-            } );
-
-
-            Scope.ascend();
-            return intr;
-
-        case 'TypeParameter':
-            return create_type_parameters( Object.assign( decl, { name } ), opts.typeParameterCount++ );
+            return bind_as_parameter( name, value, def );
+        // Scope.current.bind( new Binding( { name: tpName, type: typeParam, declaration: def, parameter: TYPE, parameterIndex: Scope.current.getIndex( TYPE ) } ) );
 
         default:
-            warn( 'Cannot do:', decl.kind );
-            break;
+            console.error( `fail on declaration (${kind( def )} -> ${def.kind}):`, $( no_parent( def ), 1 ) );
+            node_error( 'fail on declaration:', def.type || def );
     }
 }
 
-type_creator( create_type );

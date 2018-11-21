@@ -28,7 +28,7 @@ import path                                                  from "path";
 import { default as fsWithCallbacks }                        from "fs";
 import * as ts                                               from "typescript";
 import { create_reporters }                                  from "./source-code";
-import { get_options, collapse }                             from "./utils";
+import { get_options, collapse, keyCount }                   from "./utils";
 import { add_types, get_names, get_type_name } from "./ts-text";
 
 const fs = fsWithCallbacks.promises;
@@ -58,7 +58,6 @@ const
     isObject                   = o => typeof o === 'object' && !Array.isArray( o ) && o !== null,
     isString                   = s => typeof s === 'string',
     isArray                    = a => Array.isArray( a ),
-    keyCount                   = o => Object.keys( o ).length,
     strip                      = o => Object.keys( o ).reduce( ( no, k ) =>
         k === 'parent' ? no :
         isObject( o[ k ] ) ? { ...no, [ k ]: strip( o[ k ] ) } :
@@ -179,7 +178,7 @@ export async function simple_ts_ast( fileName )
 
         references[ fileName ] = {
             ast: sourceFile,
-            reporters: create_reporters( fileName, sourceCode ),
+            reporters: sourceFile.reporters = create_reporters( fileName, sourceCode ),
             symbols
         };
 
@@ -341,14 +340,16 @@ function get_decl( decl )
     {
         if ( declName ) namespaces.push( declName );
 
-        const tmp = decl.body.statements.map( n => sym_walk( n, {} ) );
-
-        if ( tmp )
-        {
-            let collect = tmp.reduce( ( mm, block ) => mm.concat( we_want_this( block ) ), [] );
-
-            set_members( collect, dd );
-        }
+        dd.members = decl.body.statements.map( get_decl );
+        // dd.members = decl.body.statements.map( n => sym_walk( n, {} ) );
+        // const tmp = decl.body.statements.map( n => sym_walk( n, {} ) );
+        //
+        // if ( tmp )
+        // {
+        //     let collect = tmp.reduce( ( mm, block ) => mm.concat( we_want_this( block ) ), [] );
+        //
+        //     set_members( collect, dd );
+        // }
 
         if ( declName ) namespaces.pop();
     }
