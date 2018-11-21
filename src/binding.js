@@ -4,10 +4,11 @@
  * @since 0.0.1
  *******************************************************************************/
 
-"use strict";
-
-import { isSymbol, safe } from "./utils";
-import { modifierFlags }  from "./ts-utils";
+import { BIND_ALLOC, getValue, isFunction, isNumber, isObject, isString, isSymbol, safe } from "./utils";
+import { modifierFlags, modify }                                                          from "./ts-utils";
+import { Scope }                                                                          from "./scope";
+import { SyntaxKind }                                                                     from "typescript";
+import { Type }                                                                           from "./types/base-type";
 
 const dangerousNames = Object.getOwnPropertyNames( Object.getPrototypeOf( {} ) );
 
@@ -45,33 +46,40 @@ const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
 export class Binding
 {
     /**
-     * @param {BindingInfo} binding
+     * @param {BindingInfo|object} binding
      */
     constructor( binding )
     {
+        // if ( isString( binding.type ) && binding.type === 'unknown' )
+        // {
+        //     console.error( 'UNKNOWN: ' + binding.name );
+        //     console.error( new Error().stack );
+        // }
+
         this._parameterType = null;
+        this.bindType = binding.bindType || BIND_ALLOC;
+
         if ( binding.name ) this.name = binding.name;
         if ( binding.type ) this.type = binding.type;
+        if ( binding.value ) this.value = binding.value;
+
+        if ( !binding.type && this.value && this.value.constructor.name.endsWith( 'Type' ) ) this.type = 'abstract';
+
         if ( binding.declaration ) this.declaration = binding.declaration;
         if ( binding.scope ) this.scope = binding.scope;
-        if ( binding.parameter )
+        if ( binding.parameter && binding.name !== 'this' )
             this.parameter( binding.parameter, binding.parameterIndex );
+
+        if ( binding.declaration )
+            modify( binding.declaration, this );
 
         Object.values( modifierFlags ).forEach( key => binding[ key ] && ( this[ key ] = true ) );
 
         this.constraint = null;
         this.isKeyOf = false;
 
-    }
-
-    /**
-     * @param {string} ptype
-     * @param {number} index
-     */
-    parameter( ptype, index )
-    {
-        this._parameterType = ptype;
-        this._index = index;
+        if ( this.declaration )
+            modify( this.declaration, this );
     }
 
     /**
@@ -114,6 +122,21 @@ export class Binding
         return this._index;
     }
 
+    get properTypeName()
+    {
+        return this.isTypeDefinition() ? this.name : this.type;
+    }
+
+    /**
+     * @param {string} ptype
+     * @param {number} [index]
+     */
+    parameter( ptype, index = Scope.current.getIndex( ptype ) )
+    {
+        this._parameterType = ptype;
+        this._index = index;
+    }
+
     /**
      * @param {boolean} opt
      * @return {Binding|boolean}
@@ -145,10 +168,63 @@ export class Binding
     }
 
     /**
+     * @param {string} str
+     * @return {string}
+     */
+    annotate_name( str )
+    {
+        if ( this.isOptional )
+            str += '?';
+
+        return str;
+    }
+
+    has_decl()
+    {
+        if ( !Array.isArray( this.declaration ) )
+            return Binding.is_decl( this.declaration );
+
+        if ( this.declaration ) return false;
+
+        return this.declaration.some( Binding.is_decl );
+    }
+
+    /**
      * @return {string}
      */
     toString()
     {
-        return `${this.name}: ${this.type}`;
+        const strValue = this.value ? `${this.value}` : '<no value>';
+        const baseTypeStr = `<${this.type.constructor.name}>` + ( isFunction( this.type.getBaseTypeAsString ) ? this.type.getBaseTypeAsString() : this.type ? this.type : "<missing type>" );
+
+        // if ( !isFunction( this.type.getBaseTypeAsString ) )
+        // {
+        //     console.error( 'getBaseTypeAsString is a ', typeof this.type.getBaseTypeAsString );
+        //     console.error( `and the class construtor is a ${this.type.constructor.name}` );
+        //     console.error( `and the type is ${this.type}` );
+        // }
+
+        return `[Binding -> name: "${this.annotate_name( this.name )}", type: ${baseTypeStr}, value: ${strValue}]`;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isTypeDefinition()
+    {
+        return this.value instanceof Type;
+    }
+
+    /**
+     * @return {boolean}
+     */
+    isValueDeclaration()
+    {
+        return !this.isTypeDefinition();
+    }
+
+    static is_decl( node )
+    {
+        return SyntaxKind[ node.kind ].endsWith( 'Declaration' );
     }
 }

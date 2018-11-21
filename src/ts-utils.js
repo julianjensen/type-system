@@ -5,11 +5,10 @@
  *******************************************************************************/
 "use strict";
 
-import { SyntaxKind }                             from "typescript";
-import { unescapeName }                           from "./named-object";
-import { FORMAL, node_fatal, TYPE, type_creator } from "./utils";
-import { Scope }                                  from "./scope";
-import { Type }                                   from "./types/base-type";
+import { SyntaxKind }                               from "typescript";
+import { unescapeName, node_fatal, TYPE, isObject } from "./utils";
+import { Scope }                                    from "./scope";
+import { Type }                                     from "./types/base-type";
 
 export const tsInfo = {
     hasType:              [
@@ -162,8 +161,100 @@ export const tsInfo = {
         SyntaxKind.JSDocTypedefTag,
         SyntaxKind.JSDocCallbackTag,
         SyntaxKind.JSDocSignature
+    ],
+    baseTypes:            [
+        SyntaxKind.AnyKeyword,
+        SyntaxKind.BooleanKeyword,
+        SyntaxKind.ClassKeyword,
+        SyntaxKind.EnumKeyword,
+        SyntaxKind.FunctionKeyword,
+        SyntaxKind.ModuleKeyword,
+        SyntaxKind.NamespaceKeyword,
+        SyntaxKind.NeverKeyword,
+        SyntaxKind.NullKeyword,
+        SyntaxKind.NumberKeyword,
+        SyntaxKind.ObjectKeyword,
+        SyntaxKind.StringKeyword,
+        SyntaxKind.SymbolKeyword,
+        SyntaxKind.UndefinedKeyword,
+        SyntaxKind.UnknownKeyword,
+        SyntaxKind.VoidKeyword
     ]
 };
+
+export const baseTypesToString = {
+    [ SyntaxKind.AnyKeyword ]:                         'any',
+    [ SyntaxKind[ SyntaxKind.AnyKeyword ] ]:           'any',
+    [ SyntaxKind.BooleanKeyword ]:                     'boolean',
+    [ SyntaxKind[ SyntaxKind.BooleanKeyword ] ]:       'boolean',
+    [ SyntaxKind.ClassKeyword ]:                       'class',
+    [ SyntaxKind[ SyntaxKind.ClassKeyword ] ]:         'class',
+    [ SyntaxKind.ClassDeclaration ]:                   'class',
+    [ SyntaxKind[ SyntaxKind.ClassDeclaration ] ]:     'class',
+    [ SyntaxKind.InterfaceKeyword ]:                   'class',
+    [ SyntaxKind[ SyntaxKind.InterfaceKeyword ] ]:     'class',
+    [ SyntaxKind.InterfaceDeclaration ]:               'class',
+    [ SyntaxKind[ SyntaxKind.InterfaceDeclaration ] ]: 'class',
+    [ SyntaxKind.EnumKeyword ]:                        'enum',
+    [ SyntaxKind[ SyntaxKind.EnumKeyword ] ]:          'enum',
+    [ SyntaxKind.FunctionKeyword ]:                    'function',
+    [ SyntaxKind[ SyntaxKind.FunctionKeyword ] ]:      'function',
+    [ SyntaxKind.ModuleKeyword ]:                      'module',
+    [ SyntaxKind[ SyntaxKind.ModuleKeyword ] ]:        'module',
+    [ SyntaxKind.NamespaceKeyword ]:                   'namespace',
+    [ SyntaxKind[ SyntaxKind.NamespaceKeyword ] ]:     'namespace',
+    [ SyntaxKind.NeverKeyword ]:                       'never',
+    [ SyntaxKind[ SyntaxKind.NeverKeyword ] ]:         'never',
+    [ SyntaxKind.NullKeyword ]:                        'null',
+    [ SyntaxKind[ SyntaxKind.NullKeyword ] ]:          'null',
+    [ SyntaxKind.NumberKeyword ]:                      'number',
+    [ SyntaxKind[ SyntaxKind.NumberKeyword ] ]:        'number',
+    [ SyntaxKind.ObjectKeyword ]:                      'object',
+    [ SyntaxKind[ SyntaxKind.ObjectKeyword ] ]:        'object',
+    [ SyntaxKind.StringKeyword ]:                      'string',
+    [ SyntaxKind[ SyntaxKind.StringKeyword ] ]:        'string',
+    [ SyntaxKind.SymbolKeyword ]:                      'symbol',
+    [ SyntaxKind[ SyntaxKind.SymbolKeyword ] ]:        'symbol',
+    [ SyntaxKind.UndefinedKeyword ]:                   'undefined',
+    [ SyntaxKind[ SyntaxKind.UndefinedKeyword ] ]:     'undefined',
+    [ SyntaxKind.UnknownKeyword ]:                     'unknown',
+    [ SyntaxKind[ SyntaxKind.UnknownKeyword ] ]:       'unknown',
+    [ SyntaxKind.VoidKeyword ]:                        'void',
+    [ SyntaxKind[ SyntaxKind.VoidKeyword ] ]:          'void',
+    [ SyntaxKind.TypeParameter ]:                      'type',
+    [ SyntaxKind[ SyntaxKind.TypeParameter ] ]:        'type',
+    [ SyntaxKind.ThisKeyword ]:                        'this',
+    [ SyntaxKind[ SyntaxKind.ThisKeyword ] ]:          'this'
+};
+
+// export const structuredTypesToBaseTypes = {
+//            SyntaxKind.TypePredicate,
+//              SyntaxKind.TypeReference,
+//     SyntaxKind.FunctionType,
+//     SyntaxKind.ConstructorType,
+//     SyntaxKind.TypeQuery,
+//     SyntaxKind.TypeLiteral,
+//     SyntaxKind.ArrayType,
+//     SyntaxKind.TupleType,
+//     SyntaxKind.OptionalType,
+//     SyntaxKind.RestType,
+//     SyntaxKind.UnionType,
+//     SyntaxKind.IntersectionType,
+//     SyntaxKind.ConditionalType,
+//     SyntaxKind.InferType,
+//     SyntaxKind.ParenthesizedType,
+//     SyntaxKind.ThisType,
+//     SyntaxKind.TypeOperator,
+//     SyntaxKind.IndexedAccessType,
+//     SyntaxKind.MappedType,
+//     SyntaxKind.LiteralType,
+//     SyntaxKind.ImportType
+//
+// };
+
+export const kindToType = x => isObject( x ) ? baseTypesToString[ x.kind ] : baseTypesToString[ x ];
+
+const MOGRIFIED = Symbol.for( 'mogrified' );
 
 export function isKeyword( node )
 {
@@ -286,11 +377,6 @@ function declaration_name( node )
     return declName;
 }
 
-export function get_name( node )
-{
-
-}
-
 const handlers = new Map();
 
 export function declare_handler( handler, ...kinds )
@@ -298,18 +384,21 @@ export function declare_handler( handler, ...kinds )
     kinds.forEach( kind => handlers.set( kind, handler ) );
 }
 
-export const handle_type = ( kind, node ) => handle_kind( kind, null, node );
+export const handle_type = node => {
+    handle_kind( node );
+};
 
-export const handle_kind = ( _kind, name, node ) => {
-    if ( !name && !node )
+export const handle_kind = node => { // ( _kind, name, node ) => {
+    // if ( !name && !node )
+    // {
+    //     node = _kind;
+    const _kind = node.kind;
+    // }
+
+    if ( handlers.has( _kind ) )
     {
-        node = _kind;
-        _kind = node.kind;
-    }
-
-    if ( handlers.has( _kind ) ) {
         // console.error( `kind handler for "${kind(_kind)}", name: ${name}` );
-        return handlers.get( _kind )( name, node );
+        return handlers.get( _kind )( node );
     }
 
     node_fatal( `No handler for ${SyntaxKind[ _kind ]}`, node );
@@ -359,59 +448,59 @@ export function modify( node, type )
     return type;
 }
 
-export function read_parameters( params )
-{
-    if ( !params || !params.length ) return null;
-
-    return params.map( ( p, i ) => {
-        const name = binding_name( p.name );
-        /** @type {Type|NamedObject} */
-        const type = type_creator( p.type, name );
-
-        const binding = modify( p, { name, type, declaration: p, parameter: FORMAL, parameterIndex: i } );
-        return Scope.current.bind( binding );
-    } );
-}
+// export function read_parameters( params )
+// {
+//     if ( !params || !params.length ) return null;
+//
+//     return params.map( ( p, i ) => {
+//         const name = binding_name( p.name );
+//         /** @type {Type|NamedObject} */
+//         const type = type_creator( p.type, name );
+//
+//         const binding = modify( p, { name, type, declaration: p, parameter: FORMAL, parameterIndex: i } );
+//         return Scope.current.bind( binding );
+//     } );
+// }
 
 export function read_type_parameters( params )
 {
     if ( !params || !params.length ) return null;
 
-    return params.map( create_type_parameter );
+    return params.map( handle_kind );
 }
 
-export function create_type_parameter( t, i )
-{
-    const name = identifier( t.name );
-    let constraint;
-    let keyOf = false;
-
-    if ( t.constraint )
-    {
-        const c = t.constraint;
-
-        if ( c.kind === SyntaxKind.TypeOperator )
-        {
-            constraint = type_creator( c.type );
-            keyOf = true;
-        }
-        else
-            constraint = type_creator( c );
-    }
-
-    /** @type {BindingInfo} */
-    const binding = {
-        name,
-        type: constraint,
-        declaration: t,
-        parameter: TYPE,
-        parameterIndex: i
-    };
-
-    if ( keyOf ) binding.keyOf = true;
-
-    return Scope.current.bind( modify( t, binding ) );
-}
+// export function create_type_parameter( t, i )
+// {
+//     const name = identifier( t.name );
+//     let constraint;
+//     let keyOf = false;
+//
+//     if ( t.constraint )
+//     {
+//         const c = t.constraint;
+//
+//         if ( c.kind === SyntaxKind.TypeOperator )
+//         {
+//             constraint = type_creator( c.type );
+//             keyOf = true;
+//         }
+//         else
+//             constraint = type_creator( c );
+//     }
+//
+//     /** @type {BindingInfo} */
+//     const binding = {
+//         name,
+//         type: constraint,
+//         declaration: t,
+//         parameter: TYPE,
+//         parameterIndex: i
+//     };
+//
+//     if ( keyOf ) binding.keyOf = true;
+//
+//     return Scope.current.bind( modify( t, binding ) );
+// }
 
 /**
  * @param {BindingInfo|Type|Array<BindingInfo|Type>|undefined} p
@@ -460,16 +549,16 @@ export function create_type_argument( t, i )
         return keyword_to_binding( SyntaxKind[ t.kind ] );
 
     if ( t.kind !== SyntaxKind.TypeReference )
-        return type_creator( t );
+        return handle_kind( t );
 
     const name = identifier( t.typeName );
 
     /** @type {BindingInfo} */
     const binding = {
         name,
-        type: t.constraint && type_creator( t.constraint, name ),
-        declaration: t,
-        parameter: TYPE,
+        type:           t.constraint && handle_kind( t.constraint ),
+        declaration:    t,
+        parameter:      TYPE,
         parameterIndex: i
     };
 
@@ -483,6 +572,16 @@ export function keyword_to_binding( keyword )
     const k = kw.replace( /^(.*)Keyword$/, '$1' ).toLowerCase();
 
     return Scope.current.resolve( k );
+}
+
+export function get_source_info( node )
+{
+    let p = node;
+
+    while ( p && p.kind !== SyntaxKind.SourceFile )
+        p = p.parent;
+
+    return p.reporters.nodePosToString( node );
 }
 
 /*

@@ -4,16 +4,12 @@
  * @since 0.0.1
  *******************************************************************************/
 
-
-
-
-"use strict";
-
-import { Scope }                                                                                                                  from "../scope";
-import { Type }                                                                                                                   from "./base-type";
-import { create_type_parameter, declare_handler, entity_name, read_type_arguments, read_type_parameters, stringify_type_parargs } from "../ts-utils";
-import { SyntaxKind }                                                                                                             from "typescript";
-import { type_creator }                                                                                                           from "../utils";
+import { Scope }                                                                                from "../scope";
+import { Type }                                                                                 from "./base-type";
+import { baseTypesToString, declare_handler, entity_name, handle_kind, stringify_type_parargs } from "../ts-utils";
+import { SyntaxKind }                                                                           from "typescript";
+import { declaration }                                                                          from "../create-type";
+import { $, no_parent }                                                                         from "../utils";
 
 /**
  * @extends Type
@@ -26,6 +22,8 @@ export class TypeReference extends Type
         super( 'reference' );
         this.resolvesTo = null;
         this.typeArguments = null;
+        this.referenceNme = null;
+        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     /**
@@ -33,10 +31,14 @@ export class TypeReference extends Type
      */
     resolve( name )
     {
+        this.referenceNme = name;
         if ( typeof name === 'string' )
             this.resolvesTo = Scope.current.resolve( name );
         else
             this.resolvesTo = name;
+
+        if ( this.resolvesTo )
+            this.baseType = this.resolvesTo;
 
         return this.resolvesTo;
     }
@@ -56,6 +58,14 @@ export class TypeReference extends Type
 
         return p;
     }
+
+    /**
+     * @return {string}
+     */
+    toString()
+    {
+        return `${this.referenceNme}${stringify_type_parargs( this.typeArguments )}`;
+    }
 }
 
 /**
@@ -66,9 +76,17 @@ export class TypeAlias extends Type
     /** */
     constructor()
     {
-        super( 'alias' );
+        super( 'alias', true );
         this.resolvesTo = null;
         this.typeParameters = null;
+    }
+
+    /**
+     * @return {string}
+     */
+    get baseType()
+    {
+        return this.resolvesTo || baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     /**
@@ -93,6 +111,7 @@ export class ConditionalType extends Type
         this.extendsType = null;
         this.trueType = null;
         this.falseType = null;
+        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     /**
@@ -113,8 +132,9 @@ export class InferType extends Type
     constructor()
     {
         super( 'infer' );
-        /** @type {BindingInfo} */
+        /** @type {?Binding} */
         this.typeParameter = null;
+        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     toString()
@@ -132,9 +152,10 @@ export class TypePredicateType extends Type
     constructor()
     {
         super( 'predicate' );
-        /** @type {BindingInfo} */
+        /** @type {?BindingInfo} */
         this.parameter = null;
         this.type = null;
+        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     /**
@@ -146,74 +167,84 @@ export class TypePredicateType extends Type
     }
 }
 
+// /**
+//  * @param {ts.DeclarationWithTypeParameterChildren|ts.TypeAliasDeclaration} node
+//  */
+// function new_type_alias( node )
+// {
+//     const aliasName = entity_name( node.name );
+//
+//     const alias = new TypeAlias();
+//
+//     alias.typeParameters = node.typeParameters && node.typeParameters.map( declaration );
+//     alias.resolvesTo = handle_kind( node.type );
+//
+//     Scope.current.bind( { name: aliasName, type: alias, declaration: node } );
+//
+//     return alias;
+// }
+
 /**
- * @param {string} name
- * @param {ts.DeclarationWithTypeParameterChildren|ts.TypeAliasDeclaration} node
+ * @param {ts.TypeReferenceNode} node
+ * @return {TypeReference}
  */
-function new_type_alias( name, node )
-{
-    const aliasName = entity_name( node.name );
-
-    const alias = new TypeAlias();
-
-    alias.typeParameters = read_type_parameters( node.typeParameters );
-    alias.resolvesTo = type_creator( node.type );
-
-    Scope.current.bind( { name: aliasName, type: alias, declaration: node } );
-
-    return alias;
-}
-
-function new_type_reference( name, node )
+function new_type_reference( node )
 {
     const refName = entity_name( node.typeName || node.exprName );
     // const typeArgs = node.typeArguments && node.typeArguments.length && node.typeArguments;
     const ref = new TypeReference();
 
-    ref.typeArguments = read_type_arguments( node.typeArguments );
+    ref.typeArguments = node.typeArguments && node.typeArguments.map( handle_kind );
 
     ref.resolve( refName );
 
     return ref;
 }
 
-function new_conditional_type( name, node )
+/**
+ * @param {ts.ConditionalTypeNode} node
+ * @return {ConditionalType}
+ */
+function new_conditional_type( node )
 {
     const type = new ConditionalType();
 
-    type.checkType = type_creator( node.checkType );
-    type.extendsType = type_creator( node.extendsType );
-    type.trueType = type_creator( node.trueType );
-    type.falseType = type_creator( node.falseType );
-
-    return type;
-}
-
-function new_infer_type( name, node )
-{
-    const type = new InferType();
-
-    type.typeParameter = create_type_parameter( node.typeParameter, 0 );
+    type.checkType = handle_kind( node.checkType );
+    type.extendsType = handle_kind( node.extendsType );
+    type.trueType = handle_kind( node.trueType );
+    type.falseType = handle_kind( node.falseType );
 
     return type;
 }
 
 /**
- * @param {string} name
- * @param {ts.TypePredicate} node
+ * @param {ts.InferTypeNode} node
+ * @return {InferType}
  */
-function new_type_predicate( name, node )
+function new_infer_type( node )
+{
+    const type = new InferType();
+
+    type.typeParameter = declaration( node.typeParameter );
+
+    return type;
+}
+
+/**
+ * @param {ts.TypePredicateNode} node
+ */
+function new_type_predicate( node )
 {
     const type = new TypePredicateType();
 
     type.parameter = Scope.current.resolve( node.parameterName );
-    type.type = type_creator( node.type );
+    type.type = handle_kind( node.type );
 
     return type;
 }
 
 declare_handler( new_type_reference, SyntaxKind.TypeReference, SyntaxKind.TypeQuery );
-declare_handler( new_type_alias, SyntaxKind.TypeAliasDeclaration );
+// declare_handler( new_type_alias, SyntaxKind.TypeAliasDeclaration );
 declare_handler( new_conditional_type, SyntaxKind.ConditionalType );
 declare_handler( new_infer_type, SyntaxKind.InferType );
 declare_handler( new_type_predicate, SyntaxKind.TypePredicate, SyntaxKind.FirstTypeNode );

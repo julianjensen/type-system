@@ -178,7 +178,7 @@ export async function simple_ts_ast( fileName )
 
         references[ fileName ] = {
             ast: sourceFile,
-            reporters: create_reporters( fileName, sourceCode ),
+            reporters: sourceFile.reporters = create_reporters( fileName, sourceCode ),
             symbols
         };
 

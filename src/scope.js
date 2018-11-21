@@ -4,11 +4,11 @@
  * @since 0.0.1
  *******************************************************************************/
 
-"use strict";
-
-import { get_options, logger, safe } from "./utils";
-import { DEBUG }                     from "./constants";
-import { SyntaxKind }                from "typescript";
+import { FORMAL, get_options, isObject, logger, safe, TYPE } from "./utils";
+import { DEBUG }                                             from "./constants";
+import { SyntaxKind }                                        from "typescript";
+import { get_primitive, Primitive }                          from "./types/primitives";
+import { Binding }                                           from "./binding";
 
 const { SCOPE: { FINAL, SYMBOL, SCOPE, EXTENDED }, LINENUMBER } = DEBUG;
 const TAB_SIZE = 4;
@@ -21,7 +21,7 @@ const getSourceFile = binding => {
     while ( n && n.kind !== SyntaxKind.SourceFile )
         n = n.parent;
 
-    return n.fileName;
+    return n && n.fileName;
 };
 
 /**
@@ -37,6 +37,8 @@ export class Scope
         this.symbols = new Map();
         this.owner = { name: 'no owner set', toString() { return this.name; } };
         allScopes.add( this );
+        this.typeIndex = 0;
+        this.formalIndex = 0;
     }
 
     get logger()
@@ -46,6 +48,11 @@ export class Scope
         this._logger = logger.scope( 'scope', ...this.path_name() );
 
         return this._logger;
+    }
+
+    getIndex( ptype )
+    {
+        return ptype === FORMAL ? this.formalIndex++ : ptype === TYPE ? this.typeIndex++ : -1;
     }
 
     path_name()
@@ -59,24 +66,31 @@ export class Scope
         this.logger.log( ...args );
     }
 
+    // /**
+    //  * @param {Binding} own
+    //  * @return {Scope}
+    //  */
+    // set_owner( own )
+    // {
+    //     // this.owner = own;
+    //     // own.scope = this;
+    //
+    //     return this;
+    // }
+
     /**
-     * @param {BindingInfo} own
-     * @return {Scope}
+     * @param {BindingInfo|Binding} binding
+     * @return {*}
      */
-    set_owner( own )
-    {
-        this.owner = own;
-        own.scope = this;
-
-        return this;
-    }
-
     bind( binding )
     {
         if ( binding.isBound ) return binding;
 
         binding.isBound = true;
         this.add( binding.name, binding );
+
+        if ( isObject( binding.value) && binding.value.scope && !this.owner )
+            this.owner = binding;
 
         return binding;
     }
@@ -85,7 +99,7 @@ export class Scope
     {
         // binding.declaration = null;     // Removed because the AST is huge when printing out debug info
         this.symbols.set( name, binding );
-        if ( binding.type ) binding.type.boundTo = binding;
+        if ( isObject( binding.value ) ) binding.value.boundTo = binding;
         binding.scope = this;
 
         if ( Scope.DEBUG & SYMBOL )
@@ -95,6 +109,12 @@ export class Scope
 
             this.log( "Adding symbol %s to %s", _name, this.short() );
         }
+
+        if ( !( binding instanceof Binding ) )
+            binding = new Binding( binding );
+
+        // if ( typeof binding.toString !== 'function' )
+        //     binding.toString = () => `Binding (placeholder) for "${binding.type}"`;
 
         return this;
     }
@@ -110,16 +130,15 @@ export class Scope
     }
 
     /**
-     * @param {BindingInfo} [own]
      * @return {Scope}
      */
-    add_inner( own )
+    add_inner()
     {
         const child = new Scope( this );
 
         this.inner.push( child );
 
-        if ( own ) child.set_owner( own );
+        // if ( own ) child.set_owner( own );
 
         if ( Scope.DEBUG & SCOPE )
             this.log( "Adding child scope %s inside %s", child.short(), this.short() );
@@ -127,13 +146,25 @@ export class Scope
         return child;
     }
 
+    /**
+     * @return {boolean|*}
+     */
     remove()
     {
         return Scope.remove( this );
     }
 
+    /**
+     * @param {string} name
+     * @param {boolean} [localOnly=false]
+     * @return {?Binding}
+     */
     resolve( name, localOnly = false )
     {
+        const prim = get_primitive( name );
+
+        if ( prim ) return prim;
+
         if ( this.symbols.has( name ) )
             return this.symbols.get( name );
 
@@ -158,7 +189,9 @@ export class Scope
      */
     toString( indent = 0 )
     {
-        return [ ...this.symbols.entries() ].map( ( [ , binding ] ) => Scope.str_symbol( indent, binding ) ).join( '\n' ); // name, `${type}`, type ) ).join( '\n' );
+        return [ ...this.symbols.entries() ]
+            // .filter( ( [ , binding ] ) => binding && binding.type && !( binding.type instanceof Primitive ) && !binding.isParameter )
+            .map( ( [ , binding ] ) => Scope.str_symbol( indent, binding ) ).join( '\n' ); // name, `${type}`, type ) ).join( '\n' );
     }
 
     getOwnSymbols()
@@ -176,14 +209,7 @@ export class Scope
 
             const scopeSyms = `[symbols: ${this.numSymbols()}/${this.numSymbols( false )}, scopes: ${this.numScopes()}/${this.numScopes( false )}]`;
             const selfSymbols = this.isEmpty() ? '' : `${right( indent )}${name} ${scopeSyms} =>\n${this.toString( indent + 1 )}`;
-            return selfSymbols;
-            if ( indent === 2 )
-            {
-                // return selfSymbols + ', inner length = ' + this.inner.length + '\n' +
-                //        this.inner.map( s => `  KEYS(${s.symbols.size}): ${[ ...s.symbols.keys() ].map( k => typeof k )}, inner length: ${s.inner.length}` ).join( '\n' );
-            }
-            // const childSymbols = this.inner.length ? this.inner.map( s => s.stringify( indent + 1 ) ).filter( x => x ).join( '\n\n' ) : '';
-            const childSymbols = 'CHILDREN';
+            const childSymbols = this.inner.length ? this.inner.map( s => s.stringify( indent + 1 ) ).filter( x => x ).join( '\n\n' ) : '';
 
             return selfSymbols || childSymbols ? `${selfSymbols}\n\n${childSymbols}` : selfSymbols ? `${selfSymbols}` : '';
         }
@@ -266,17 +292,18 @@ export class Scope
      */
     static str_symbol( indent, binding ) // name, typeName, type )
     {
-        const { name, type, varDecl } = binding;
+        return `${right( indent )}${binding}`;
+        const { name, type, value } = binding;
         let typeName = `${type}`;
         const cname = c => c && c.constructor && c.constructor.name || 'no c name';
         const source = () => type && typeof type.cloc === 'function' ? ` // ${type.cloc()} <-- ${type.ploc()} [${cname( type )}]` : '';
 
         if ( typeName.startsWith( '[object Object]' ) )
-            typeName = 'ERROR, no toString() for ' + cname( type ) + ', source file: ' + getSourceFile( binding );
+            typeName = '----------------> ERROR, no toString() for ' + cname( type ) + ', source file: ' + getSourceFile( binding );
         else if ( typeName === 'undefined' )
-            typeName = 'ERROR, type is undefined for ' + safe( name ) + ', source file: ' + getSourceFile( binding );
+            typeName = '----------------> ERROR, type is undefined for ' + safe( name ) + ', source file: ' + getSourceFile( binding );
 
-        if ( !varDecl )
+        if ( !isObject( value ) || !value.isType )
             return `${right( indent )}${typeName} ${LINENUMBER ? source() : ''}`;
 
         return `${right( indent )}${safe( name )}: ${typeName} ${LINENUMBER ? source() : ''}`;
@@ -286,7 +313,7 @@ export class Scope
 Scope.global = new Scope();
 Scope.current = Scope.global;
 Scope.stack = [];
-Scope.global.set_owner( { name: 'global', toString() { return 'global'; } } );
+Scope.current.owner = new Binding( { name: 'global', type: 'namespace' } );
 Scope.allScopes = allScopes;
 
 Scope.DEBUG = FINAL | SYMBOL | SCOPE | EXTENDED;

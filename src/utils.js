@@ -16,17 +16,29 @@ const
     CALL        = Symbol.for( '()' ),
     CONSTRUCTOR = Symbol.for( 'new' ),
     ANONYMOUS   = Symbol.for( 'anonymous' ),
+    INDEX       = Symbol.for( 'index-signature' ),
+
+    BIND_TYPE   = Symbol.for( 'bind-type' ),
+    BIND_ALLOC  = Symbol.for( 'bind-var' ),
+    BIND_TPARAM = Symbol.for( 'bind-type-param' ),
 
     FORMAL      = 'formal',
     TYPE        = 'type',
+    CONTEXT     = 'context',
 
     { inspect } = util,
     $           = ( o, d = 4 ) => inspect( o, { depth: d } );
 
 let options = { verbose: false };
-let create_type;
 let metaInfo;
 let errorNode;
+
+const getValue = value => isFunction( value ) ? value() : value;
+
+const dangerousNames = Object.getOwnPropertyNames( Object.getPrototypeOf( {} ) );
+
+export const escapeName = name => dangerousNames.includes( name ) || name.startsWith( '__' ) ? '__' + name : name;
+export const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
 
 export const no_parent = o => ( { ...o, parent: null } );
 export const debug_name = o => o && o.kind && !o.__kind ? ( o.__kind = SyntaxKind[ o.kind ], o ) : o;
@@ -54,14 +66,6 @@ export function set_options( opts )
 
 export function get_options() { return options; }
 
-export function type_creator( _create_type )
-{
-    if ( typeof _create_type === 'function' )
-        return create_type = _create_type;
-
-    return create_type( _create_type );
-}
-
 util.inspect.defaultOptions.colors = true;
 util.inspect.defaultOptions.depth = 4;
 
@@ -75,6 +79,8 @@ const italic = ( strs, ...exprs ) => chalk.italic( exprs.reduce( ( out, x, i ) =
 const isObject = o => typeof o === 'object' && o !== null && !Array.isArray( o );
 const isString = s => typeof s === 'string';
 const isSymbol = s => typeof s === 'symbol';
+const isNumber = n => typeof n === 'number' && n === n;
+const isFunction = f => typeof f === 'function';
 
 const logger = sig;
 const fatal = e => {
@@ -238,9 +244,14 @@ export {
     isObject,
     isString,
     isSymbol,
+    isFunction,
     CALL,
     CONSTRUCTOR,
     ANONYMOUS,
+    INDEX,
+    BIND_TYPE,
+    BIND_ALLOC,
+    BIND_TPARAM,
     log,
     $,
     warn,
@@ -251,5 +262,8 @@ export {
     keyCount,
     FORMAL,
     TYPE,
-    add_to_list
+    CONTEXT,
+    add_to_list,
+    isNumber,
+    getValue
 };

@@ -1,13 +1,13 @@
 /**
  * @typedef {object} BindingInfo
- * @property {*} value
- * @property {?string} [name]    - Redundant, comes from scope binding
+ * @property {string} [bindType=BIND_ALLOC],
+ * @property {*} [value]
+ * @property {?string} [name]
  * @property {?Type} type
- * @property {Node} [declaration]
+ * @property {ts.TypeNode|ts.Declaration|Array<ts.TypeNode|ts.Declaration>} [declaration]
  * @property {?Scope} [scope]
  * @property {string} [parameter]     - Add function parameters to symbols as variable but point to parameter in func. Values: "formal" or "type"
  * @property {number} [parameterIndex]     - Add function parameters to symbols as variable but point to parameter in func.
- * @property {?Definition} firstDefinition
  * @property {?Type} [constraint]
  * @property {boolean} [varDecl]
  * @property {boolean} [keyOf]

@@ -3,11 +3,10 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-"use strict";
-
-import { Type }       from "./base-type";
-import { SyntaxKind } from "../ts-helpers";
-import { Scope }      from "../scope";
+import { Type }                                            from "./base-type";
+import { SyntaxKind }                                      from "typescript";
+import { Scope }                                           from "../scope";
+import { baseTypesToString, declare_handler, handle_kind } from "../ts-utils";
 
 /** */
 export class LiteralType extends Type
@@ -16,8 +15,9 @@ export class LiteralType extends Type
     constructor()
     {
         super( 'literal' );
-        this.value = null;
+        this._value = null;
         this.literalType = null;
+        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     /**
@@ -26,18 +26,21 @@ export class LiteralType extends Type
      */
     value( v )
     {
-        this.value = v;
+        if ( v === void 0 ) return this._value;
+        this._value = v;
         return this;
     }
 
     /**
-     * @param {SyntaxKind} t
+     * @param {ts.LiteralExpression|ts.BooleanLiteral|ts.PrefixUnaryExpression} t
      * @return {LiteralType}
      */
     valueType( t )
     {
-        const keyword = SyntaxKind[ t ].replace( /^(.*)Literal$/, '$1' ).toLowerCase();
+        const keyword = SyntaxKind[ t.kind ].replace( /^(.*)Literal$/, '$1' ).toLowerCase();
         this.literalType = Scope.global.resolve( keyword );
+        if ( this.literalType && this.literalType.value )
+            this.baseType = this.literalType.value.baseType;
         return this;
     }
 
@@ -49,16 +52,39 @@ export class LiteralType extends Type
         switch ( `${this.literalType.type}` )
         {
             case 'string':
-                return `"${this.value}"`;
+                return `"${this._value}"`;
 
             case 'number':
-                return String( Number( this.value ) );
+                return String( Number( this._value ) );
 
             case 'boolean':
-                return String( this.value === 'true' );
+                return String( this._value === 'true' );
 
             default:
                 return `Unknown literal type: ${this.literalType.type}`;
         }
     }
 }
+
+/**
+ * @param {ts.LiteralTypeNode} typeNode
+ * @return {LiteralType}
+ */
+function new_literal_type( typeNode )
+{
+    const lit = new LiteralType();
+
+    return lit.value( handle_kind( typeNode.literal ) ).valueType( typeNode.literal );
+}
+
+/**
+ * @param {ts.StringLiteral} typeNode
+ * @return {string}
+ */
+function get_literal_value( typeNode )
+{
+    return typeNode.text;
+}
+
+declare_handler( new_literal_type, SyntaxKind.LiteralType );
+declare_handler( get_literal_value, SyntaxKind.StringLiteral, SyntaxKind.NumericLiteral );

@@ -4,14 +4,13 @@
  * @since 1.0.0
  * @date Fri Aug 17 2018
  *********************************************************************************************************************/
-
 "use strict";
 
 import { default as fsWithCallbacks } from "fs";
 
 const fs = fsWithCallbacks.promises;
 
-import { create_type, declaration }                               from "./src/create-type";
+import { declaration }                               from "./src/create-type";
 import { log, $, fatal, warn, set_options, set_meta, node_fatal } from "./src/utils";
 import { Scope }                                                  from "./src/scope";
 import { DEBUG }                                                  from "./src/constants";
@@ -91,7 +90,6 @@ if ( !options.command )
 
 set_options( options );
 primitive_init();
-// init( create_type );
 
 const nameList = [ 'identity', 'strIdent', 'HasLength', 'twoTyped', 'Hmmm', 'explicit', 'X', 'Y', 'abc', 'def', 'Abc' ];
 

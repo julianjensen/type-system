@@ -20,7 +20,8 @@
     "version": "run-s -s changelog marktoc toc",
     "syms": "node --harmony --no-warnings -r esm index.js parse node_modules/typescript/lib/lib.es6.d.ts node_modules/typescript/lib/node.d.ts node_modules/typescript/lib/dom.es6.generated.d.ts node_modules/typescript/lib/esnext.promise.d.ts node_modules/typescript/lib/inspector.d.ts node_modules/typescript/lib/lib.es2017.intl.d.ts node_modules/typescript/lib/lib.es2017.object.d.ts node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts node_modules/typescript/lib/lib.es2017.string.d.ts node_modules/typescript/lib/lib.es2017.typedarrays.d.ts node_modules/typescript/lib/lib.esnext.asynciterable.d.ts node_modules/typescript/lib/webworker.generated.d.ts >sym.json",
     "es6": "node --harmony --no-warnings -r esm index.js parse node_modules/typescript/lib/lib.es6.d.ts node_modules/typescript/lib/node.d.ts >es6-node.json",
-    "one": "node --harmony --no-warnings -r esm index.js parse node_modules/typescript/lib/lib.es2015.iterable.d.ts >one.json"
+    "one": "node --harmony --no-warnings -r esm index.js parse node_modules/typescript/lib/lib.es2015.iterable.d.ts >one.json",
+      "debug": "node --harmony --no-warnings -r esm index.js parse debug.d.ts"
   },
   "repository": {
     "type": "git",
