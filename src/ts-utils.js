@@ -3,12 +3,10 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
 "use strict";
 
 import { SyntaxKind }   from "./ts-helpers";
 import { unescapeName } from "./named-object";
-
 
 export const tsInfo = {
     hasType:              [
@@ -164,6 +162,22 @@ export const tsInfo = {
     ]
 };
 
+const modifierFlags = {
+    [ SyntaxKind.AbstractKeyword ]:  'isAbstract',
+    [ SyntaxKind.AsyncKeyword ]:     'isAsync',
+    [ SyntaxKind.ConstKeyword ]:     'isConst',
+    [ SyntaxKind.DeclareKeyword ]:   'isDeclare',
+    [ SyntaxKind.DefaultKeyword ]:   'isDefault',
+    [ SyntaxKind.ExportKeyword ]:    'isExport',
+    [ SyntaxKind.PublicKeyword ]:    'isPublic',
+    [ SyntaxKind.PrivateKeyword ]:   'isPrivate',
+    [ SyntaxKind.ProtectedKeyword ]: 'isProtected',
+    [ SyntaxKind.ReadonlyKeyword ]:  'isReadonly',
+    [ SyntaxKind.StaticKeyword ]:    'isStatic'
+};
+
+const error = ( expected, node ) => { throw new Error( `Expected ${expected}, found ${kind( node )}` ); };
+
 export function is( node, ..._kinds )
 {
 
@@ -193,7 +207,7 @@ export function identifier( node, noThrow = false )
         return identifier( node );
 
     if ( !noThrow )
-        throw new Error( `Expected Identifier, found ${kind( node )}` );
+        error( 'Identifier', node );
 }
 
 function _entity_name( node )
@@ -211,7 +225,7 @@ export function entity_name( node )
     else if ( is( node, SyntaxKind.QualifiedName ) )
         return _entity_name( node.left ) + '.' + _identifier( node.right );
 
-    throw new Error( `Expected entity name, found ${kind( node )}` );
+    error( 'entity name', node );
 }
 
 export function property_name( node, noThrow = false )
@@ -227,7 +241,7 @@ export function property_name( node, noThrow = false )
             return 'expression';
         default:
             if ( !noThrow )
-                throw new Error( `Expected property name, found ${kind( node )}` );
+                error( 'property name', node );
     }
 }
 
@@ -244,7 +258,7 @@ export function binding_name( node )
 
     if ( name ) return name;
 
-    throw new Error( `Expected identifier or binding pattern, found ${kind( node )}` );
+    error( 'identifier or binding pattern', node );
 }
 
 function declaration_name( node )
@@ -254,7 +268,7 @@ function declaration_name( node )
     declName = declName || binding_pattern( node, true );
 
     if ( !declName )
-        throw new Error( `Expected declaration name, found ${kind( node )}` );
+        error( 'declaration name', node );
 
     return declName;
 }
@@ -279,20 +293,11 @@ export const handle_kind = ( kind, name, node ) => {
     throw new Error( `No handler for ${SyntaxKind[ kind ]}` );
 };
 
-const modifierFlags = {
-    [ SyntaxKind.AbstractKeyword ]:  'isAbstract',
-    [ SyntaxKind.AsyncKeyword ]:     'isAsync',
-    [ SyntaxKind.ConstKeyword ]:     'isConst',
-    [ SyntaxKind.DeclareKeyword ]:   'isDeclare',
-    [ SyntaxKind.DefaultKeyword ]:   'isDefault',
-    [ SyntaxKind.ExportKeyword ]:    'isExport',
-    [ SyntaxKind.PublicKeyword ]:    'isPublic',
-    [ SyntaxKind.PrivateKeyword ]:   'isPrivate',
-    [ SyntaxKind.ProtectedKeyword ]: 'isProtected',
-    [ SyntaxKind.ReadonlyKeyword ]:  'isReadonly',
-    [ SyntaxKind.StaticKeyword ]:    'isStatic'
-};
-
+/**
+ * @param {ts.Node} node
+ * @param {Type} type
+ * @return {Type}
+ */
 export function modify( node, type )
 {
     if ( node.modifiers && node.modifiers.length )

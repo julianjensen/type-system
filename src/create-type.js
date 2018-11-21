@@ -3,11 +3,8 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-
-
-
-
 "use strict";
+
 import { Signature }                                             from "./type-function";
 import chalk                                                     from "chalk";
 import { Scope }                                                 from "./scope";
