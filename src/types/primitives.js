@@ -132,7 +132,8 @@ const autoAdd = [
     [ 'null', NullType, SyntaxKind.NullKeyword ],
     [ 'void', VoidType, SyntaxKind.VoidKeyword ],
     [ 'never', NeverType, SyntaxKind.NeverKeyword ],
-    [ 'this', ThisType, SyntaxKind.ThisKeyword ]
+    [ 'this', ThisType, SyntaxKind.ThisKeyword ],
+    [ 'this', ThisType, SyntaxKind.ThisType ]
 ];
 
 /**
@@ -159,13 +160,14 @@ export function primitive_init()
 
     autoAdd.forEach( ( [ name, Klass, kind ] ) => {
         const kls = new Klass();
+        kls.baseType = name;
 
         kls.isPrimitive = true;
         localMap[ name ] = new Binding( { name, value: kls, type: name } );
         primitiveMap.set( name, localMap[ name ] );
         primitiveMap.set( kind, localMap[ name ] );
         if ( name === 'boolean' ) booleanType = kls;
-        if ( kind ) declare_handler( () => localMap[ name ].type, kind );
+        if ( kind ) declare_handler( () => localMap[ name ].value, kind );
     } );
 
     // declare_handler( () => localMap.any, SyntaxKind.AnyKeyword );

@@ -87,6 +87,9 @@ function create_type_parameter( t )
             type.constraint = handle_kind( c );
     }
 
+    if ( t.default )
+        type.defaultType = handle_kind( t.default );
+
     return type;
 }
 

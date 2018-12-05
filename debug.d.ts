@@ -1,2 +1,1 @@
-declare var onafterprint: ((this: Window, ev: Event) => any) | null;
-
+declare var onwheel: ((this: Window, ev: WheelEvent) => any) | null;

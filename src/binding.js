@@ -4,7 +4,7 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { BIND_ALLOC, getValue, isFunction, isNumber, isObject, isString, isSymbol, safe } from "./utils";
+import { BIND_ALLOC, isFunction, isObject, isString, isSymbol, safe } from "./utils";
 import { modifierFlags, modify }                                                          from "./ts-utils";
 import { Scope }                                                                          from "./scope";
 import { SyntaxKind }                                                                     from "typescript";
@@ -14,6 +14,31 @@ const dangerousNames = Object.getOwnPropertyNames( Object.getPrototypeOf( {} ) )
 
 const escapeName = name => dangerousNames.includes( name ) || name.startsWith( '__' ) ? '__' + name : name;
 const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
+
+/** */
+class Overload
+{
+    /**
+     * @param {...Binding} bindings
+     */
+    constructor( ...bindings )
+    {
+        this.overloaded = false;
+        /** @type {Array<Binding>} */
+        this.overloads = bindings;
+    }
+
+    add( binding )
+    {
+        this.overloads.push( binding );
+    }
+
+    get()
+    {
+        return this.overloads;
+    }
+}
+
 
 /**
  * A binding is
@@ -43,7 +68,7 @@ const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
  * @class Binding
  * @implements {BindingInfo}
  */
-export class Binding
+export class Binding extends Overload
 {
     /**
      * @param {BindingInfo|object} binding
@@ -55,6 +80,22 @@ export class Binding
         //     console.error( 'UNKNOWN: ' + binding.name );
         //     console.error( new Error().stack );
         // }
+        super();
+
+        if ( isObject( binding.value ) )
+        {
+            const v = binding.value;
+
+            if ( v.scope )
+                v.scope.set_owner( this );
+
+            v.boundTo = this;
+
+            if ( v.hasMangled() )
+                this.mangled = v.getMangled( isSymbol( binding.name ) ? '' : binding.name );
+        }
+
+        // if ( isObject( binding.value ) ) binding.value.boundTo = binding;
 
         this._parameterType = null;
         this.bindType = binding.bindType || BIND_ALLOC;
@@ -80,6 +121,14 @@ export class Binding
 
         if ( this.declaration )
             modify( this.declaration, this );
+    }
+
+    /**
+     * @return {string|symbol}
+     */
+    get realName()
+    {
+        return this._name;
     }
 
     /**
@@ -195,7 +244,11 @@ export class Binding
     toString()
     {
         const strValue = this.value ? `${this.value}` : '<no value>';
-        const baseTypeStr = `<${this.type.constructor.name}>` + ( isFunction( this.type.getBaseTypeAsString ) ? this.type.getBaseTypeAsString() : this.type ? this.type : "<missing type>" );
+        const base = isObject( this.type ) ? this.type : isObject( this.value ) ? this.value : this.type || this.value;
+        if ( !base ) {
+            console.error( 'wtf:', this );
+        }
+        const baseTypeStr = isString( base ) ? base : ( isFunction( base.getBaseTypeAsString ) ? base.getBaseTypeAsString() : ( base || "<missing type>" ) );
 
         // if ( !isFunction( this.type.getBaseTypeAsString ) )
         // {

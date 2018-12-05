@@ -37,8 +37,10 @@ export class LiteralType extends Type
      */
     valueType( t )
     {
-        const keyword = SyntaxKind[ t.kind ].replace( /^(.*)Literal$/, '$1' ).toLowerCase();
+        const keyword = SyntaxKind[ t.kind ].replace( /^(.*)(?:Literal|Keyword)$/, '$1' ).toLowerCase();
         this.literalType = Scope.global.resolve( keyword );
+        if ( !this.literalType )
+            console.error( `Unable to resolve alias "${keyword}" from "${SyntaxKind[ t.kind ]}"` );
         if ( this.literalType && this.literalType.value )
             this.baseType = this.literalType.value.baseType;
         return this;

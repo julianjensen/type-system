@@ -53,7 +53,7 @@ export const node_fatal = ( msg, node = errorNode, opts = {} ) => {
     const txt = r.getSourceTextOfNodeFromSourceFile( source, node );
 
     console.error( msg );
-    console.error( `${source.fileName}, line ${r.getLineNumberOfNode( node )}: ${txt}` );
+    console.error( `${source.fileName}, line ${r.getLineNumberOfNode( node ) - 1}: ${txt}` );
     if ( !opts.noThrow ) throw new Error( msg );
     // metaInfo.reporters.fatal( msg, node, opts );
 };
@@ -91,6 +91,36 @@ const fatal = e => {
 let tmpCount = 0;
 
 const tmpName = prefix => Symbol.for( `__$TMP_${prefix}_${( ++tmpCount ).toString().padStart( 10, '0' )}__` );
+
+export function safe_obj( o )
+{
+    if ( Array.isArray( o ) )
+        return o.map( safe_obj );
+    else if ( isObject( o ) )
+    {
+        const newObj = {};
+
+        for ( const key of Object.keys( o ) )
+        {
+            let val;
+            if ( key === 'parent' || isFunction( o[ key ] ) )
+                continue;
+            else if ( key === 'kind' )
+                val = SyntaxKind[ o[ key ] ] + ' (' + o[ key ] +')';
+            else
+                val = safe_obj( o[ key ] );
+
+            if ( val !== void 0 )
+                newObj[ key ] = val;
+        }
+
+        return newObj;
+    }
+    else if ( isFunction( o ) )
+        return void 0;
+    else
+        return o;
+}
 
 /**
  * @param {string|number} a
