@@ -33,6 +33,7 @@ import { ValueType }                                                            
 import { Namespace }                                                                from "./types/abstract";
 import { member_decls, ObjectType }                                                 from "./types/object-type";
 import { TypeReference }                                                            from "./types/reference";
+import { ecma_binding, read_pattern }                                               from "./parse-pattern";
 
 /**
  * @param {string|Symbol} name
@@ -83,6 +84,11 @@ export function declaration( def )
         case SyntaxKind.VariableDeclaration:
             /* @type {ts.VariableDeclaration} */
             const varDecl = def;
+            if ( varDecl.name.kind === SyntaxKind.ObjectBindingPattern )
+            {
+                console.error( ecma_binding( varDecl.name, varDecl.type ) );
+                process.exit();
+            }
             return create_bound_variable( Scope.current, identifier( varDecl.name ), varDecl );
 
         case SyntaxKind.ConstructSignature:
@@ -110,10 +116,10 @@ export function declaration( def )
             /** @type {ts.PropertyDeclaration|ts.PropertySignature} */
             const prop = def;
             const pname = property_name( prop.name );
-            const propRes = Scope.current.resolve( pname );
+            // const propRes = Scope.current.resolve( pname );
 
-            if ( propRes && !Binding.isExactlyA( propRes, TypeReference ) )
-                throw new Error( `Duplicate identifier declaration "${pname}"` );
+            // if ( propRes && !Binding.isExactlyA( propRes, TypeReference ) )
+            //     throw new Error( `Duplicate identifier declaration "${pname}"` );
 
             return create_bound_type( Scope.current, pname, prop );
 

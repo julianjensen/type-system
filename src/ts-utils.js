@@ -402,12 +402,8 @@ export const handle_type = node => {
     handle_kind( node );
 };
 
-export const handle_kind = node => { // ( _kind, name, node ) => {
-    // if ( !name && !node )
-    // {
-    //     node = _kind;
+export const handle_kind = node => {
     const _kind = node.kind;
-    // }
 
     if ( handlers.has( _kind ) )
     {
@@ -433,7 +429,7 @@ export const modifierFlags = {
     [ SyntaxKind.StaticKeyword ]:    'isStatic'
 };
 
-export function modify( node, type )
+export function modify( node, type = {} )
 {
     if ( node.modifiers && node.modifiers.length )
         node.modifiers.forEach( ( { kind } ) => ( modifierFlags[ kind ] && ( type[ modifierFlags[ kind ] ] = true ) ) );
@@ -517,7 +513,7 @@ export function read_type_parameters( params )
 // }
 
 /**
- * @param {BindingInfo|Type|Array<BindingInfo|Type>|undefined} p
+ * @param {?(Binding|Type|Array<Binding|Type>)} p
  * @return {string}
  */
 export function stringify_type_parargs( p )

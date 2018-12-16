@@ -4,14 +4,13 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { baseTypesToString, handle_kind, modify } from "./ts-utils";
-import { ValueType }                              from "./value-type";
-import { Scope }                                  from "./scope";
-import { get_primitive }                          from "./types/primitives";
-import { syntaxKind }                             from "./ts-helpers";
-import { SyntaxKind }                             from "typescript";
-import { TypeReference }                          from "./types/reference";
-import { ObjectType }                             from "./types/object-type";
+import { baseTypesToString, modify } from "./ts-utils";
+import { ValueType }                 from "./value-type";
+import { Scope }                     from "./scope";
+import { get_primitive }             from "./types/primitives";
+import { TypeReference }             from "./types/reference";
+import { ObjectType }                from "./types/object-type";
+import { Type }                      from "./types/base-type";
 
 /** */
 export class Binding
@@ -24,11 +23,18 @@ export class Binding
     {
         this.valueType = vt;
         this.value = void 0;
-        if ( node ) modify( node, this );
         this.isOverloaded = vt.definition.getBaseTypeAsString() === 'function';
         this.parameterIndex = 0;
         this.entered = null;
         this.isType = true;
+
+        this.isRest = false;
+        this.isOptional = false;
+        this.makeReadWrite = false;
+        this.makeReadonly = false;
+        this.isReadonly = false;
+
+        if ( node ) modify( node, this );
     }
 
     isA( constructorClass )
@@ -91,6 +97,25 @@ export class Binding
         return `${this.valueType}`;
     }
 
+    add_modifiers( str )
+    {
+        if ( this.makeReadonly )
+            str = `+readonly ${str}`;
+        else if ( this.makeReadWrite )
+            str = `-readonly ${str}`;
+
+        if ( this.isReadonly )
+            str = `readonly ${str}`;
+
+        if ( this.isOptional )
+            str = `${str}?`;
+
+        if ( this.isRest )
+            str = `...${str}`;
+
+        return str;
+    }
+
     /**
      * @param {Array<Binding>} bindings
      * @param {Function} constructorClass
@@ -126,6 +151,30 @@ export class Binding
     {
         return bindings.filter( binding => !binding.isA( constructorClass ) );
     }
+
+    getMangled()
+    {
+        return this.valueType.getMangled();
+    }
+
+    getType()
+    {
+        return this.valueType && this.valueType.definition;
+    }
+
+    isIdenticalType( check )
+    {
+        const type = this.getType();
+
+        if ( !type ) return false;
+
+        if ( check instanceof Binding )
+            check = check.getType();
+        else if ( !( check instanceof Type ) )
+            throw new Error( `Checking for identical type against a ${check.constructor.name}` );
+
+        return type instanceof check.constructor;
+    }
 }
 
 /**
@@ -138,13 +187,10 @@ export class Binding
 export function create_bound_type( scope, bindName, node, paramType )
 {
     let specialType;
-    const typeNode = node.type || node;
+    const typeNode = node.parameters ? ( node || node.type ) : ( node.type || node );
 
-    // console.error( `bindName: ${bindName}, kind: ${typeNode.kind}, "kind": ${syntaxKind[ typeNode.kind ]}, toString: ${baseTypesToString[ typeNode.kind ]}` );
     if ( baseTypesToString[ typeNode.kind ] )
         specialType = get_primitive( baseTypesToString[ typeNode.kind ] );
-    // else if ( typeNode.kind === SyntaxKind.LiteralType )
-    //     specialType = new ValueType( handle_kind( typeNode ) );
 
     // create value type
     const vt = specialType || ValueType.create( typeNode );
@@ -171,7 +217,7 @@ export function create_bound_variable( scope, bindName, node )
     let specialType;
     const typeNode = node.type || node;
 
-    console.error( `bindName: ${bindName}, kind: ${typeNode.kind}, "kind": ${syntaxKind[ typeNode.kind ]}, toString: ${baseTypesToString[ typeNode.kind ]}` );
+    // console.error( `bindName: ${bindName}, kind: ${typeNode.kind}, "kind": ${syntaxKind[ typeNode.kind ]}, toString: ${baseTypesToString[ typeNode.kind ]}` );
     if ( baseTypesToString[ typeNode.kind ] )
         specialType = get_primitive( baseTypesToString[ typeNode.kind ] );
 

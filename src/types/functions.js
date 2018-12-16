@@ -4,81 +4,14 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { Scope }                                                                                    from "../scope";
-import { SyntaxKind }                                                                               from "../ts-helpers";
-import { CALL, CONSTRUCTOR, safe, TYPE }                                                            from "../utils";
-import { baseTypesToString, declare_handler, handle_kind, pseudo_typename, stringify_type_parargs } from "../ts-utils";
-import { ObjectType }                                                                               from "./object-type";
-import { declaration }                                                                              from "../create-type";
-import { Type }                                                                                     from "./base-type";
+import { Scope }                                                            from "../scope";
+import { SyntaxKind }                                                       from "../ts-helpers";
+import { safe, TYPE }                                                       from "../utils";
+import { baseTypesToString, declare_handler, handle_kind, pseudo_typename } from "../ts-utils";
+import { declaration }                                                      from "../create-type";
+import { Type }                                                             from "./base-type";
 
-/**
- * @extends Type
- * @extends ObjectType
- */
-export class CallableType extends ObjectType
-{
-    /** */
-    constructor()
-    {
-        super( 'callable' );
-        /** @type {Array<SimpleFunction>} */
-        this.signatures = [];
-        this.baseType = baseTypesToString[ SyntaxKind.ObjectKeyword ];
-    }
-
-    add_signature( func )
-    {
-        this.signatures.push( func );
-
-        return func;
-    }
-
-    /**
-     * @return {string}
-     */
-    toString()
-    {
-        if ( this.signatures.length === 1 )
-            return `${this.signatures[ 0 ]}`;
-
-        return this.signatures.map( s => `${s}` ).join( ';\n' ) + ';';
-    }
-
-    hasConstructor()
-    {
-        return this.signatures.some( simfunc => simfunc._funcName === CONSTRUCTOR );
-    }
-
-    hasCall()
-    {
-        return this.signatures.some( simfunc => simfunc._funcName === CALL );
-    }
-
-    hasMethod()
-    {
-        return this.signatures.some( simfunc => simfunc._funcName !== CONSTRUCTOR && simfunc._funcName !== CALL );
-    }
-
-    some( fn )
-    {
-        return this.signatures.some( fn );
-    }
-
-    each( fn )
-    {
-        this.signatures.forEach( fn );
-    }
-
-    * [ Symbol.iterator ]()
-    {
-        for ( const sig of this.signatures )
-            yield sig;
-    }
-}
-
-/**
- */
+/** */
 export class SimpleFunction extends Type
 {
     /**
@@ -105,9 +38,11 @@ export class SimpleFunction extends Type
      */
     mangle()
     {
-        const paramsEnd = this.parameters.findIndex( p => p.isOptional || p.isRest );
+        const paramsEnd = this.parameters.findIndex( p => p.isRest );
+        const typeParams = this.typeParameters && this.typeParameters.length ? this.typeParameters.map( p => p.getMangled() ).join( '-' ) : '';
+
         // @todo This can't be base type name, it has to be the actual type name. How to get it from here?
-        this.mangled = this.parameters.slice( 0, paramsEnd === -1 ? this.parameters.length : paramsEnd ).map( p => p.valueType.definition.__mangled || p.getBaseTypeAsString() ).join( '!' );
+        this.__mangled = '()~' + ( typeParams ? `${typeParams}~` : '' ) + this.parameters.slice( 0, paramsEnd === -1 ? this.parameters.length : paramsEnd ).map( p => p.valueType.definition.__mangled || p.getBaseTypeAsString() ).join( '!' );
         return this;
     }
 
@@ -153,83 +88,8 @@ function generic_read( node )
         func.type = handle_kind( node.type );
 
     func.mangle();
-
+    // console.error( `mangled: ${func.__mangled}` );
     if ( func.scope ) Scope.ascend();
 
     return func;
 }
-
-//
-// /**
-//  * @param {ts.FunctionLikeDeclaration|ts.SignatureDeclaration} node
-//  * @param {object} fields
-//  * @return {CallableType}
-//  */
-// function func_reader( node, fields )
-// {
-//     let parent = Scope.current.resolve( fields.name, true );
-//
-//     if ( !parent )
-//     {
-//         parent = { name: fields.name, type: new CallableType( fields.cname || safe( fields.name ) ), declaration: node };
-//         Scope.current.bind( parent );
-//     }
-//     else
-//         parent.declaration = add_to_list( parent.declaration, node );
-//
-//     const func = generic_read( node, fields, new SimpleFunction( parent ) );
-//     // console.error( 'func reader:', $( {...parent, declaration: null}, 0 ) );
-//     parent.type.signatures.push( func );
-//
-//     return parent;
-// }
-//
-// /**
-//  * @param {string} name
-//  * @param {ts.FunctionTypeNode} node
-//  * @return {CallableType}
-//  */
-// function function_type_read( name, node )
-// {
-//     return func_reader( node, { parameters: true, typeParameters: true, type: true, name: ANONYMOUS, cname: 'functiontype' } );
-// }
-//
-// /**
-//  * @param {string} name
-//  * @param {ts.ConstructorDeclaration} node
-//  * @return {CallableType}
-//  */
-// function constructor_type_read( name, node )
-// {
-//     return func_reader( node, { parameters: true, typeParameters: true, name: CONSTRUCTOR, cname: 'constructortype' } );
-// }
-//
-// /**
-//  * @param {string} name
-//  * @param {ts.ConstructSignatureDeclaration} node
-//  * @return {CallableType}
-//  */
-// function construct_signature_read( name, node )
-// {
-//     return func_reader( node, { parameters: true, typeParameters: true, name: CONSTRUCTOR } );
-// }
-//
-// /**
-//  * @param {string} name
-//  * @param {ts.CallSignatureDeclaration} node
-//  * @return {CallableType}
-//  */
-// function call_signature_read( name, node )
-// {
-//     return func_reader( node, { parameters: true, typeParameters: true, type: true, name: CALL } );
-// }
-//
-// /**
-//  * @param {string} name
-//  * @param {ts.MethodSignature|ts.MethodDeclaration} node
-//  * @return {CallableType}
-//  */
-// function method_signature_read( name, node )
-// {
-//     return func_reader( node, { parameters: true, typeParameters: true, type: true, name: binding_name( node.name ), cname: 'method' } );
-// }

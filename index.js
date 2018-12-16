@@ -6,22 +6,17 @@
  *********************************************************************************************************************/
 "use strict";
 
-import tree from 'text-treeview';
-
 import { default as fsWithCallbacks } from "fs";
 
 const fs = fsWithCallbacks.promises;
 
-import { declaration }                                                                 from "./src/create-type";
-import { log, $, fatal, warn, set_options, set_meta, node_fatal, no_parent, safe_obj } from "./src/utils";
-import { Scope }                                                                       from "./src/scope";
-import { DEBUG }                                                                       from "./src/constants";
-import { default as program }                                                          from "commander";
-import * as ts                                                                         from 'typescript';
-import { simple_ts_ast, to_safe_string }                                               from "./src/ts-symbols";
-import globby                                                                from "globby";
-import { primitive_init }                                         from "./src/types/primitives";
-import { SyntaxKind }                                             from "./src/ts-helpers";
+import { declaration }                                         from "./src/create-type";
+import { log, $, set_options, set_meta, node_fatal, safe_obj } from "./src/utils";
+import { Scope }                                               from "./src/scope";
+import { default as program }                                  from "commander";
+import { simple_ts_ast, to_safe_string }                       from "./src/ts-symbols";
+import globby                                                  from "globby";
+import { primitive_init }                                      from "./src/types/primitives";
 
 const
     _options = {},

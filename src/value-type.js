@@ -19,11 +19,12 @@ export class ValueType {
 
     /**
      * @param {ts.TypeNode} node
+     * @param {ts.TypeNode} altNode
      * @return {ValueType}
      */
-    static create( node ) {
+    static create( node, altNode ) {
 
-        return new ValueType( handle_kind( node ) );
+        return new ValueType( handle_kind( node, altNode ) );
     }
 
     /**
@@ -39,5 +40,10 @@ export class ValueType {
     toString()
     {
         return `${this.definition}`;
+    }
+
+    getMangled( name )
+    {
+        return this.definition ? this.definition.getMangled( name ) : '';
     }
 }

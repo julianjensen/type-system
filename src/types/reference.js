@@ -22,8 +22,9 @@ export class TypeReference extends Type
         super( 'reference' );
         this.resolvesTo = null;
         this.typeArguments = null;
-        this.referenceNme = null;
+        this.referenceName = null;
         this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
+        this.__mangled = 'reference';
     }
 
     /**
@@ -31,7 +32,8 @@ export class TypeReference extends Type
      */
     resolve( name )
     {
-        this.referenceNme = name;
+        this.referenceName = name;
+        this.__mangled = 'reference->' + name;
         if ( typeof name === 'string' )
             this.resolvesTo = Scope.current.resolve( name );
         else
@@ -41,6 +43,11 @@ export class TypeReference extends Type
             this.baseType = this.resolvesTo;
 
         return this.resolvesTo;
+    }
+
+    getMangled( name = '' )
+    {
+        return name + '-' + this.resolvesTo ? this.resolvesTo.getMangled() : this.__mangled;
     }
 
     /**
@@ -64,7 +71,8 @@ export class TypeReference extends Type
      */
     toString()
     {
-        return `${this.referenceNme}${stringify_type_parargs( this.typeArguments )}`;
+        const ta = this.typeArguments && this.typeArguments.length ? `<${this.typeArguments.map( x => `${x}` ).join( ', ' )}>` : '';
+        return `${this.referenceName}${ta}`;
     }
 }
 
@@ -202,8 +210,9 @@ function new_type_reference( node )
     // const typeArgs = node.typeArguments && node.typeArguments.length && node.typeArguments;
     const ref = new TypeReference();
 
+    // console.error( 'ta:', node.typeArguments );
     ref.typeArguments = node.typeArguments && node.typeArguments.map( handle_kind );
-
+    // console.error( ref.typeArguments );
     ref.resolve( refName );
 
     return ref;

@@ -14,12 +14,12 @@ import { isFunction, isString } from "../utils";
  */
 function source_info( stack, offset )
 {
-    const exclusions = new RegExp( String.raw`named-object|anonymous` );
+    const exclusions = new RegExp( String.raw`anonymous` );
     let foundAtOffset = 0;
-    const [ source, code, fpath, line ] = stack.slice( offset ).find( ( line, i ) => ( !exclusions.test( line ) && ( foundAtOffset = i ) ) ).match( /^\s*at\s+(.*?)\s+\(([^:]+):(\d+).*/ );
+    const prepped = stack.slice( offset ).find( ( line, i ) => ( !exclusions.test( line ) && ( foundAtOffset = i ) ) );
+    const [ source, code, fpath, line ] = prepped.match( /^\s*at\s+(.*?)\s+\((?:[A-Z]:)?([^:]+):(\d+).*/ );
 
     let dirname = __dirname;
-
     while ( dirname.length && !fpath.startsWith( dirname ) )
         dirname = dirname.replace( /^(.*)\/.*$/, '$1' );
 
@@ -101,7 +101,9 @@ export class Type
      */
     getMangled( name )
     {
-        return this.mangled ? `${name}$${this.mangled}$` : name;
+        const _m = this.__mangled || this.mangled || this.getBaseTypeAsString();
+
+        return _m ? `${name}$${_m}$` : name;
     }
 
     /**

@@ -30,6 +30,17 @@ export class Scope
         /** @type {Map<string, Array<Binding>>} */
         this.symbols = new Map();
         this.parameters = {};
+        this._ambient = true;
+    }
+
+    setAmbient( onOff )
+    {
+        this._ambient = onOff;
+    }
+
+    isAmbient()
+    {
+        return this._ambient;
     }
 
     /**
@@ -78,8 +89,16 @@ export class Scope
             const syms = this.symbols.get( __name );
             const allFuncs = Scope.all_functions( binding, ...syms );
 
+            if ( name === 'NaN' )
+            {
+                console.error( `allFuncs: ${allFuncs}, syms.length: ${syms.length}, isType? ${binding.isType}, syms[0].isType: ${syms[ 0 ].isType}` );
+            }
+
             if ( !allFuncs && ( syms.length !== 1 || binding.isType === syms[ 0 ].isType ) )
-                throw new Error( `Duplicate identifier declaration "${_name}"` );
+            {
+                if ( syms.length === 1 && !syms[ 0 ].isIdenticalType( binding ) )
+                    throw new Error( `Duplicate identifier declaration "${_name}"` );
+            }
 
             if ( binding.getBaseTypeAsString() !== 'function' )
             {
@@ -90,16 +109,13 @@ export class Scope
             if ( !binding.isOverloaded )
                 throw new Error( `Duplicate identifier declaration "${_name}"` );
 
-            const mangledName = binding.valueType.definition.getMangled( _name );
-            const found = syms.find( prior => prior.valueType.definition.getMangled( _name ) === mangledName );
+            const mangledName = binding.getMangled( _name );
+            const found = syms.find( prior => prior.getMangled( _name ) === mangledName );
 
-            if ( found )
-            {
-                console.error( `mangled: "${mangledName}"` );
+            if ( found && !this.isAmbient() )
                 throw new Error( `Duplicate overloaded function found for "${_name}"` );
-            }
-
-            syms.push( binding );
+            else if ( !found )
+                syms.push( binding );
         }
         else
             this.symbols.set( __name, [ binding ] );
@@ -123,6 +139,17 @@ export class Scope
         p.push( { name, binding } );
 
         return p.length - 1;
+    }
+
+    /**
+     * @param {string|symbol} name
+     * @return {Array<Binding>|undefined}
+     */
+    local( name )
+    {
+        const _name = isSymbol( name ) ? name : escapeName( name );
+
+        return this.symbols.get( _name );
     }
 
     resolve( name )
@@ -156,7 +183,7 @@ export class Scope
 
     stringify( indent = 0 )
     {
-        const _print = name => b => Scope._print_binding( name, b, indent + 1 );
+        const _print = name => b => Scope._print_binding( b.add_modifiers( name ), b, indent + 1 );
         const lines = [];
         const creator = this.createdBy || '<no creator>';
 
@@ -195,7 +222,7 @@ export class Scope
         {
             lines.push( ...bindings.map( binding => {
                 const r = {
-                    text: `${safe( name )}: ` + ( `${binding}` || binding.getBaseTypeAsString() )
+                    text: `${safe( binding.add_modifiers( name ) )}: ` + ( `${binding}` || binding.getBaseTypeAsString() )
                 };
 
                 if ( binding.scope && !binding.scope.isEmpty )

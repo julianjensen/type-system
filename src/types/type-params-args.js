@@ -23,6 +23,11 @@ export class TypeParameter extends Type
         this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
+    getMangled( name )
+    {
+        return `${name || ''}${this}`.replace( /\s+/g, '-' );
+    }
+
     /**
      * @return {string}
      */
