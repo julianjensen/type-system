@@ -20,7 +20,7 @@ export class TypeParameter extends Type
         this.constraint = null;
         this.isKeyOf = false;
         this.defaultType = null;
-        this.baseType = baseTypesToString[ SyntaxKind.AnyKeyword ];
+        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
     }
 
     /**
@@ -28,10 +28,10 @@ export class TypeParameter extends Type
      */
     toString()
     {
-        const c = this.constraint && !this.isKeyOf ? ` extends ${this.constraint}` : ` in keyof ${this.constraint}`;
+        const c = this.constraint && !this.isKeyOf ? ` extends ${this.constraint}` : this.constraint ? ` in keyof ${this.constraint}` : '';
         const defType = this.defaultType ? ` = ${this.defaultType}` : '';
 
-        return ( this.constraint ? `${this.boundTo.name}${c}` : this.boundTo.name ) + defType;
+        return `${c}${defType}`;
     }
 }
 

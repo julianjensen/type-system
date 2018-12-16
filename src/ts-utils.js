@@ -326,11 +326,20 @@ export function property_name( node, noThrow = false )
     {
         case SyntaxKind.Identifier:
             return _identifier( node );
+
         case SyntaxKind.NumericLiteral:
         case SyntaxKind.StringLiteral:
             return node.text;
+
         case SyntaxKind.ComputedPropertyName:
-            return 'expression';
+            return property_name( node.expression );
+
+        case SyntaxKind.PropertyAccessExpression:
+            if ( is( node.expression, SyntaxKind.Identifier ) && node.expression.escapedText === 'Symbol' )
+                return '@@' + property_name( node.name );
+
+            return property_name( node.expression ) + property_name( node.name );
+
         default:
             if ( !noThrow )
                 throw new Error( `Expected property name, found ${kind( node )}` );
@@ -376,6 +385,11 @@ function declaration_name( node )
 
     return declName;
 }
+
+export const pseudo_typename = node => {
+    const nodeName = SyntaxKind[ node.kind ];
+    return nodeName.replace( /^(.*?)(?:Type|Expression|Function|Signature|Declaration)?$/, '$1' ).toLowerCase();
+};
 
 const handlers = new Map();
 

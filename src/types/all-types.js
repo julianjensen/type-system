@@ -13,6 +13,6 @@ import "./functions";
 import "./array";
 import "./indexed-mapped";
 import "./literal";
-import "./module";
+import "./abstract";
 import "./type-params-args";
 import "./union-intersection";

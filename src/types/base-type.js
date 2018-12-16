@@ -4,8 +4,8 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { Scope }                          from "../scope";
-import { isFunction, isString, isSymbol } from "../utils";
+import { Scope }                from "../scope";
+import { isFunction, isString } from "../utils";
 
 /**
  * @param {Array<string>} stack
@@ -69,7 +69,7 @@ export class Type
     constructor( name, hasScope = false )
     {
         this.typeName = name;
-        this.scope = hasScope ? Scope.current.add_inner() : null;
+        this.scope = hasScope ? Scope.current.add( this ) : null;
 
         this.boundTo = null;
 
@@ -84,6 +84,7 @@ export class Type
         this.baseType = 'object';
         this.isType = true;
         this.mangled = null;
+        this.__mangled = this.typeName;
     }
 
     /**
@@ -195,8 +196,17 @@ export class Type
         else if ( this.boundTo )
             typeStr = this.boundTo.name;
         else
-            typeStr = 'no binding';
+            typeStr = 'no toString() defined on ' + this.constructor.name;
 
         return this.annotate_type( typeStr );
+    }
+
+    /**
+     * @param constructorClass
+     * @return {boolean}
+     */
+    isA( constructorClass )
+    {
+        return this instanceof constructorClass;
     }
 }

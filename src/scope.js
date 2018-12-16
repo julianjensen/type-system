@@ -4,321 +4,239 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { FORMAL, get_options, isObject, logger, safe, TYPE } from "./utils";
-import { DEBUG }                                             from "./constants";
-import { SyntaxKind }                                        from "typescript";
-import { get_primitive, Primitive }                          from "./types/primitives";
-import { Binding }                                           from "./binding";
+import chalk              from 'chalk';
+import tree               from 'text-treeview';
+import { isSymbol, safe } from "./utils";
 
-const { SCOPE: { FINAL, SYMBOL, SCOPE, EXTENDED }, LINENUMBER } = DEBUG;
-const TAB_SIZE = 4;
-const right = indent => ' '.repeat( indent * TAB_SIZE );
-const allScopes = new Set();
+const dangerousNames = Object.getOwnPropertyNames( Object.getPrototypeOf( {} ) );
 
-const getSourceFile = binding => {
-    let n = Array.isArray( binding.declaration ) ? binding.declaration[ 0 ] : binding.declaration;
+const escapeName = name => dangerousNames.includes( name ) || name.startsWith( '__' ) ? '__' + name : name;
+const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
+const INDENT_SIZE = 2;
+const _spaces = indent => ' '.repeat( indent * INDENT_SIZE );
 
-    while ( n && n.kind !== SyntaxKind.SourceFile )
-        n = n.parent;
-
-    return n && n.fileName;
-};
-
-/**
- * @class
- */
+/** */
 export class Scope
 {
-    constructor( outer = null )
+    /**
+     * @param {?Scope} [outer]
+     * @param {ValueType} [createdBy]
+     */
+    constructor( outer, createdBy )
     {
-        this._logger = null;
         this.outer = outer;
         this.inner = [];
-        /** @type {Map<string, Binding|Overload>} */
+        this.createdBy = createdBy;
+        /** @type {Map<string, Array<Binding>>} */
         this.symbols = new Map();
-        // this.owner = { name: 'no owner set', toString() { return this.name; } };
-        allScopes.add( this );
-        this.typeIndex = 0;
-        this.formalIndex = 0;
-    }
-
-    get logger()
-    {
-        if ( this._logger ) return this._logger;
-
-        this._logger = logger.scope( 'scope', ...this.path_name() );
-
-        return this._logger;
-    }
-
-    getIndex( ptype )
-    {
-        return ptype === FORMAL ? this.formalIndex++ : ptype === TYPE ? this.typeIndex++ : -1;
-    }
-
-    path_name()
-    {
-        return this.outer ? [ ...this.outer.path_name(), this.owner_name() ] : [ 'global' ];
-    }
-
-    log( ...args )
-    {
-        if ( !get_options().verbose ) return;
-        this.logger.log( ...args );
+        this.parameters = {};
     }
 
     /**
-     * @param {Binding} own
-     * @return {Scope}
+     * @return {boolean}
      */
-    set_owner( own )
+    get isEmpty()
     {
-        this.owner = own;
-        // own.scope = this;
-
-        return this;
+        return this.symbols.size === 0;
     }
 
     /**
-     * @param {BindingInfo|Binding} binding
-     * @return {*}
+     * @param {Scope|Type} [scope]
+     * @param {Type} [creator]
      */
-    bind( binding )
+    add( scope, creator )
     {
-        if ( binding.isBound ) return binding;
-
-        binding.isBound = true;
-        this.add( binding.realName, binding );
-
-        if ( isObject( binding.value ) && binding.value.scope && !this.owner )
-            this.owner = binding;
-
-        return binding;
-    }
-
-    add( name, binding )
-    {
-        // binding.declaration = null;     // Removed because the AST is huge when printing out debug info
-
-        const overload = this.resolve( name, true );
-
-        // console.error( `Resolving "${name}" -> ${!!overload}, overloaded? ${!!overload && overload.overloaded}, mangled? ${!!overload && isObject( overload.value ) && overload.value.hasMangled()}` );
-
-        if ( overload && overload.overloaded )
-            overload.get().push( binding );
-        else if ( overload && isObject( overload.value ) && overload.value.hasMangled() )
+        if ( !( scope instanceof Scope ) )
         {
-            overload.overloaded = true;
-            overload.get().push( overload, binding );
-            // this.symbols.set( name, new Overload( overload, binding ) );
+            creator = scope;
+            scope = void 0;
+        }
+        const s = scope || new Scope( this, creator );
+        if ( creator && !s.createdBy ) s.createdBy = creator;
+
+        this.inner.push( s );
+
+        return s;
+    }
+
+    static all_functions( ...bindings )
+    {
+        return bindings.every( b => b.getBaseTypeAsString() === 'function' );
+    }
+
+    /**
+     * @param {string|symbol} name
+     * @param {Binding} binding
+     */
+    bind( name, binding )
+    {
+        const _name = safe( name );
+        const __name = isSymbol( name ) ? name : escapeName( name );
+
+        if ( this.symbols.has( __name ) )
+        {
+            const syms = this.symbols.get( __name );
+            const allFuncs = Scope.all_functions( binding, ...syms );
+
+            if ( !allFuncs && ( syms.length !== 1 || binding.isType === syms[ 0 ].isType ) )
+                throw new Error( `Duplicate identifier declaration "${_name}"` );
+
+            if ( binding.getBaseTypeAsString() !== 'function' )
+            {
+                syms.push( binding );
+                return;
+            }
+
+            if ( !binding.isOverloaded )
+                throw new Error( `Duplicate identifier declaration "${_name}"` );
+
+            const mangledName = binding.valueType.definition.getMangled( _name );
+            const found = syms.find( prior => prior.valueType.definition.getMangled( _name ) === mangledName );
+
+            if ( found )
+            {
+                console.error( `mangled: "${mangledName}"` );
+                throw new Error( `Duplicate overloaded function found for "${_name}"` );
+            }
+
+            syms.push( binding );
         }
         else
-            this.symbols.set( name, binding );
-
-        // console.error( `After "${name}" -> ${!!overload}, overloaded? ${!!overload && overload.overloaded}` );
-        binding.scope = this;
-
-        if ( Scope.DEBUG & SYMBOL )
-        {
-            const bname = binding.toString();
-            const _name = name === bname ? name : `'${safe( name )}' (${bname})`;
-
-            this.log( "Adding symbol %s to %s", _name, this.short() );
-        }
-
-        // if ( !( binding instanceof Binding ) )
-        //     binding = new Binding( binding );
-
-        // if ( typeof binding.toString !== 'function' )
-        //     binding.toString = () => `Binding (placeholder) for "${binding.type}"`;
-
-        return this;
-    }
-
-    info( extended = Scope.DEBUG & EXTENDED )
-    {
-        return extended ? {
-            numSymbols: this.symbols.size,
-            symbols:    [ ...this.symbols.values() ].map( v => `${v.type}` )
-        } : {
-            numSymbols: this.symbols.size
-        };
+            this.symbols.set( __name, [ binding ] );
     }
 
     /**
-     * @return {Scope}
+     * @param {string|symbol} name
+     * @param {Binding} binding
+     * @param {string} paramType
+     * @return {number}
      */
-    add_inner()
+    bind_as_parameter( name, binding, paramType )
     {
-        const child = new Scope( this );
+        this.bind( name, binding );
 
-        this.inner.push( child );
+        if ( !this.parameters )
+            this.parameters = {};
 
-        // if ( own ) child.set_owner( own );
+        const p = this.parameters[ paramType ] || ( this.parameters[ paramType ] = [] );
 
-        if ( Scope.DEBUG & SCOPE )
-            this.log( "Adding child scope %s inside %s", child.short(), this.short() );
+        p.push( { name, binding } );
 
-        return child;
+        return p.length - 1;
+    }
+
+    resolve( name )
+    {
+        const _name = isSymbol( name ) ? name : escapeName( name );
+
+        return this.symbols.get( _name ) || ( this.outer && this.outer._resolve( _name ) );
+    }
+
+    _resolve( name )
+    {
+        return this.symbols.get( name ) || ( this.outer && this.outer._resolve( name ) );
     }
 
     /**
-     * @return {boolean|*}
+     * @return {Map<string, Array<Binding>>}
      */
-    remove()
+    * [ Symbol.iterator ]()
     {
-        return Scope.remove( this );
+        yield * this.symbols;
     }
 
     /**
-     * @param {string} name
-     * @param {boolean} [localOnly=false]
-     * @return {?(Binding|Overload)}
+     * @param {string} paramType
+     * @return {*}
      */
-    resolve( name, localOnly = false )
+    get_all_parameter_bindings( paramType )
     {
-        const prim = get_primitive( name );
-
-        if ( prim ) return prim;
-
-        if ( this.symbols.has( name ) )
-            return this.symbols.get( name );
-
-        if ( this.outer && !localOnly )
-            return this.outer.resolve( name );
-
-        return null;
-    }
-
-    find( predicate, localOnly = false )
-    {
-        for ( const [ name, binding ] of this.symbols )
-            if ( predicate( name, binding.type ) ) return { name, binding };
-
-        if ( this.outer && !localOnly )
-            this.outer.find( predicate );
-    }
-
-    /**
-     * @param {number} [indent]
-     * @return {string}
-     */
-    toString( indent = 0 )
-    {
-        return [ ...this.symbols.entries() ]
-            .map( ( [ , binding ] ) => Scope.str_symbol( indent, binding ) ).join( '\n' );
-    }
-
-    getOwnSymbols()
-    {
-        return [ ...this.symbols.entries() ].map( ( [ , binding ] ) => Scope.str_symbol( 0, binding ) );
+        return this.parameters[ paramType ];
     }
 
     stringify( indent = 0 )
     {
-        try
+        const _print = name => b => Scope._print_binding( name, b, indent + 1 );
+        const lines = [];
+        const creator = this.createdBy || '<no creator>';
+
+        if ( !this.isEmpty ) lines.push( chalk.cyanBright.italic( `${_spaces( indent )}scope created by ${creator}` ) );
+
+        for ( const [ name, bindings ] of this )
         {
-            let name = ( this.owner && `owner: ${this.owner.name}` );
+            const named = _print( name );
 
-            if ( !name ) name = '<anonymous>';
-
-            const scopeSyms = `[symbols: ${this.numSymbols()}/${this.numSymbols( false )}, scopes: ${this.numScopes()}/${this.numScopes( false )}]`;
-            const selfSymbols = this.isEmpty() ? '' : `${right( indent )}${name} ${scopeSyms} =>\n${this.toString( indent + 1 )}`;
-            const childSymbols = this.inner.length ? this.inner.map( s => s.stringify( indent + 1 ) ).filter( x => x ).join( '\n\n' ) : '';
-
-            return selfSymbols || childSymbols ? `${selfSymbols}\n\n${childSymbols}` : selfSymbols ? `${selfSymbols}` : '';
+            if ( bindings.length === 1 )
+                lines.push( named( bindings[ 0 ] ) );
+            else
+                lines.push( ...bindings.map( named ) );
         }
-        catch ( err )
+
+        return lines.join( '\n' );
+    }
+
+    treeify()
+    {
+        return tree( [
+            {
+                text:     `scope created by ${this.createdBy || '<no creator>'}`,
+                children: this._treeify()
+            }
+        ] );
+    }
+
+    _treeify()
+    {
+        let lines = [];
+
+        if ( this.isEmpty ) return [];
+
+        for ( const [ name, bindings ] of this )
         {
-            console.error( 'stringify bomb' );
-            console.error( err );
-            process.exit( 1 );
+            lines.push( ...bindings.map( binding => {
+                const r = {
+                    text: `${safe( name )}: ` + ( `${binding}` || binding.getBaseTypeAsString() )
+                };
+
+                if ( binding.scope && !binding.scope.isEmpty )
+                    r.children = binding.scope._treeify();
+
+                return r;
+            } ) );
         }
+
+        return lines;
     }
 
-    short()
+    static _print_binding( name, binding, indent )
     {
-        const oname = this.owner_name();
+        const spaces = _spaces( indent );
 
-        return `Scope: ${safe( oname )}`;
+        let bindType = `${binding}` || binding.getBaseTypeAsString();
+        let line = `${spaces}${name} -> ${bindType}`;
+
+        if ( binding.scope && !binding.scope.isEmpty )
+            line += '\n' + binding.scope.stringify( indent + 1 );
+
+        return line;
     }
 
-    owner_name()
-    {
-        return this.owner ? this.owner.boundTo || this.owner.__name || this.owner.name || this.owner.constructor.name : typeof this.owner;
-    }
-
-    toJSON()
-    {
-        return {
-            symbols: this.getOwnSymbols(),
-            owner:   this.owner_name(),
-            inner:   this.inner.map( s => s.toJSON() )
-        };
-    }
-
-    isEmpty()
-    {
-        return !this.symbols.size && !this.inner.length;
-    }
-
-    numSymbols( deep = true )
-    {
-        if ( deep )
-            return this.inner.reduce( ( cnt, inner ) => cnt + inner.numSymbols( deep ), 0 ) + this.symbols.size;
-
-        return this.symbols.size;
-    }
-
-    numScopes( deep = true )
-    {
-        if ( deep )
-            return this.inner.reduce( ( cnt, inner ) => cnt + inner.numScopes( deep ), 0 ) + this.inner.length;
-
-        return this.inner.length;
-    }
-
-    static remove( scope )
-    {
-        if ( !scope || !scope.outer ) return false;
-
-        const prev = scope.outer.inner.length;
-
-        scope.outer.inner = scope.outer.inner.filter( s => s !== scope );
-
-        return scope.outer.inner.length !== prev;
-    }
-
+    /** */
     static descend( scope )
     {
         Scope.stack.push( Scope.current );
+        if ( !scope )
+            throw new Error( "Descending into undefined scope" );
         return Scope.current = scope;
     }
 
+    /** */
     static ascend()
     {
         return Scope.current = Scope.stack.pop();
-    }
-
-    /**
-     * @param indent
-     * @param {BindingInfo} binding
-     * @return {string}
-     */
-    static str_symbol( indent, binding ) // name, typeName, type )
-    {
-        if ( binding.overloaded )
-            return `${right( indent )}Overloaded ${binding.overloads.length}:\n${right( indent )}____________\n` + binding.overloads.map( b => `${right( indent )}${b}` ).join( '\n' );
-
-        return `${right( indent )}${binding}`;
     }
 }
 
 Scope.global = new Scope();
 Scope.current = Scope.global;
 Scope.stack = [];
-Scope.current.owner = new Binding( { name: 'global', type: 'namespace' } );
-Scope.allScopes = allScopes;
-
-Scope.DEBUG = FINAL | SYMBOL | SCOPE | EXTENDED;
-

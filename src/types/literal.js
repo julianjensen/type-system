@@ -3,47 +3,40 @@
  * @author julian.jensen
  * @since 0.0.1
  *******************************************************************************/
-import { Type }                                            from "./base-type";
-import { SyntaxKind }                                      from "typescript";
-import { Scope }                                           from "../scope";
-import { baseTypesToString, declare_handler, handle_kind } from "../ts-utils";
+import { Type }                               from "./base-type";
+import { SyntaxKind }                         from "typescript";
+import { baseTypesToString, declare_handler } from "../ts-utils";
+import { Scope }                              from "../scope";
+import { Binding }                            from "../binding";
+
+/**
+ * @type {Map<string|number|boolean, StringLiteralType|NumericLiteralType|BooleanLiteralType>}
+ */
+const valueMap = new Map();
 
 /** */
 export class LiteralType extends Type
 {
     /** */
-    constructor()
+    constructor( underlyingType, valueName )
     {
         super( 'literal' );
-        this._value = null;
-        this.literalType = null;
-        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
+        this.baseType = baseTypesToString[ underlyingType ];
+        this.valueName = valueName;
+        this.__mangled = `${this.baseType}-"${this.valueName}"`;
     }
+}
 
+/** */
+export class StringLiteralType extends LiteralType
+{
     /**
-     * @param {string} v
-     * @return {LiteralType}
+     * @param {string} valueName
      */
-    value( v )
+    constructor( valueName )
     {
-        if ( v === void 0 ) return this._value;
-        this._value = v;
-        return this;
-    }
-
-    /**
-     * @param {ts.LiteralExpression|ts.BooleanLiteral|ts.PrefixUnaryExpression} t
-     * @return {LiteralType}
-     */
-    valueType( t )
-    {
-        const keyword = SyntaxKind[ t.kind ].replace( /^(.*)(?:Literal|Keyword)$/, '$1' ).toLowerCase();
-        this.literalType = Scope.global.resolve( keyword );
-        if ( !this.literalType )
-            console.error( `Unable to resolve alias "${keyword}" from "${SyntaxKind[ t.kind ]}"` );
-        if ( this.literalType && this.literalType.value )
-            this.baseType = this.literalType.value.baseType;
-        return this;
+        super( 'string', valueName );
+        valueMap.set( valueName, this );
     }
 
     /**
@@ -51,42 +44,108 @@ export class LiteralType extends Type
      */
     toString()
     {
-        switch ( `${this.literalType.type}` )
-        {
-            case 'string':
-                return `"${this._value}"`;
+        return `"${this.valueName}"`;
+    }
 
-            case 'number':
-                return String( Number( this._value ) );
+    /**
+     * @param {string} value
+     * @return {StringLiteralType}
+     */
+    static byConstraint( value )
+    {
+        return valueMap.get( value );
+    }
+}
 
-            case 'boolean':
-                return String( this._value === 'true' );
+/** */
+export class NumericLiteralType extends LiteralType
+{
+    /**
+     * @param {string|number} valueName
+     */
+    constructor( valueName )
+    {
+        super( 'number', valueName );
+        valueMap.set( Number( valueName ), this );
+    }
 
-            default:
-                return `Unknown literal type: ${this.literalType.type}`;
-        }
+    /**
+     * @return {string}
+     */
+    toString()
+    {
+        return this.valueName.toString();
+    }
+
+    /**
+     * @param value
+     * @return {NumericLiteralType}
+     */
+    static byConstraint( value )
+    {
+        return valueMap.get( Number( value ) );
+    }
+}
+
+/** */
+export class BooleanLiteralType extends LiteralType
+{
+    /**
+     * @param {boolean} valueName
+     */
+    constructor( valueName )
+    {
+        super( 'boolean', valueName );
+        valueMap.set( valueName, this );
+    }
+
+    /**
+     * @return {string}
+     */
+    toString()
+    {
+        return this.valueName ? 'true' : 'false';
+    }
+
+    /**
+     * @param {boolean} value
+     * @return {BooleanLiteralType}
+     */
+    static byConstraint( value )
+    {
+        return valueMap.get( value );
     }
 }
 
 /**
  * @param {ts.LiteralTypeNode} typeNode
- * @return {LiteralType}
+ * @return {*}
  */
-function new_literal_type( typeNode )
+function create_literal_type( typeNode )
 {
-    const lit = new LiteralType();
+    /** @type {ts.LiteralExpression|ts.BooleanLiteral} */
+    const litNode = typeNode.literal;
 
-    return lit.value( handle_kind( typeNode.literal ) ).valueType( typeNode.literal );
+    if ( litNode.kind === SyntaxKind.TrueKeyword || litNode.kind === SyntaxKind.FalseKeyword )
+    {
+        const hardValue = litNode.kind === SyntaxKind.TrueKeyword;
+
+        return BooleanLiteralType.byConstraint( hardValue ) || new BooleanLiteralType( hardValue );
+    }
+
+    if ( !litTypes[ litNode.kind ] )
+        debugger;
+
+    const LitType = litTypes[ litNode.kind ];
+    return LitType.byConstraint( litNode.text ) || new LitType( litNode.text );
 }
 
 /**
- * @param {ts.StringLiteral} typeNode
- * @return {string}
+ * @type {object<SyntaxKind.StringLiteral|SyntaxKind.NumericLiteral, StringLiteralType|NumericLiteralType>}
  */
-function get_literal_value( typeNode )
-{
-    return typeNode.text;
-}
+const litTypes = {
+    [ SyntaxKind.StringLiteral ]:  StringLiteralType,
+    [ SyntaxKind.NumericLiteral ]: NumericLiteralType
+};
 
-declare_handler( new_literal_type, SyntaxKind.LiteralType );
-declare_handler( get_literal_value, SyntaxKind.StringLiteral, SyntaxKind.NumericLiteral );
+declare_handler( create_literal_type, SyntaxKind.LiteralType );

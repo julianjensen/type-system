@@ -258,7 +258,7 @@
             }
         ],
         "spaced-comment": [
-            2,
+            0,
             "always",
             {
                 "markers": [

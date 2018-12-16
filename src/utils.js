@@ -92,6 +92,8 @@ let tmpCount = 0;
 
 const tmpName = prefix => Symbol.for( `__$TMP_${prefix}_${( ++tmpCount ).toString().padStart( 10, '0' )}__` );
 
+const asArray = a => Array.isArray( a ) ? a : a !== void 0 ? [ a ] : [];
+
 export function safe_obj( o )
 {
     if ( Array.isArray( o ) )
@@ -295,5 +297,6 @@ export {
     CONTEXT,
     add_to_list,
     isNumber,
-    getValue
+    getValue,
+    asArray
 };

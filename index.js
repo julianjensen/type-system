@@ -4,8 +4,9 @@
  * @since 1.0.0
  * @date Fri Aug 17 2018
  *********************************************************************************************************************/
-
 "use strict";
+
+import tree from 'text-treeview';
 
 import { default as fsWithCallbacks } from "fs";
 
@@ -125,7 +126,7 @@ async function process_all()
         log.error( e );
     }
     console.error( "STRINGIFY" );
-    console.error( Scope.global.stringify() );
+    console.error( Scope.global.treeify() );
     // console.error( `${Scope.global}` );
     // console.error( $( Scope.global, 6 ) );
 

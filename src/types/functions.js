@@ -4,13 +4,13 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { Scope }                                                                   from "../scope";
-import { SyntaxKind }                                                              from "../ts-helpers";
-import { CALL, CONSTRUCTOR, safe }                                                 from "../utils";
-import { baseTypesToString, declare_handler, handle_kind, stringify_type_parargs } from "../ts-utils";
-import { ObjectType }                                                              from "./object-type";
-import { declaration }                                                             from "../create-type";
-import { Type }                                                                    from "./base-type";
+import { Scope }                                                                                    from "../scope";
+import { SyntaxKind }                                                                               from "../ts-helpers";
+import { CALL, CONSTRUCTOR, safe, TYPE }                                                            from "../utils";
+import { baseTypesToString, declare_handler, handle_kind, pseudo_typename, stringify_type_parargs } from "../ts-utils";
+import { ObjectType }                                                                               from "./object-type";
+import { declaration }                                                                              from "../create-type";
+import { Type }                                                                                     from "./base-type";
 
 /**
  * @extends Type
@@ -89,8 +89,10 @@ export class SimpleFunction extends Type
     {
         super( name, needsScope );
         this.parent = null;
-        this.scope = Scope.current.add_inner();
+        this.scope = Scope.current.add( this );
+        /** @type {Array<Binding>} */
         this.parameters = [];
+        /** @type {Array<Binding>} */
         this.typeParameters = [];
         this.type = null;
         this.functionKind = SyntaxKind.AnyKeyword;
@@ -105,13 +107,8 @@ export class SimpleFunction extends Type
     {
         const paramsEnd = this.parameters.findIndex( p => p.isOptional || p.isRest );
         // @todo This can't be base type name, it has to be the actual type name. How to get it from here?
-        this.mangled = this.parameters.slice( 0, paramsEnd === -1 ? this.parameters.length : paramsEnd ).map( p => p.value.getBaseTypeAsString() ).join( '!' );
+        this.mangled = this.parameters.slice( 0, paramsEnd === -1 ? this.parameters.length : paramsEnd ).map( p => p.valueType.definition.__mangled || p.getBaseTypeAsString() ).join( '!' );
         return this;
-    }
-
-    set funcName( fname )
-    {
-        this._funcName = fname;
     }
 
     /**
@@ -122,8 +119,12 @@ export class SimpleFunction extends Type
         const pp = _p => _p && _p.length ? `( ${_p.map( p => `${p}` ).join( ' , ' )} )` : '()';
         const returnType = this.type ? `${this.type}` : '';
         const rtypeChar = returnType ? ( this.functionKind === SyntaxKind.FunctionType ? ' => ' : ': ' ) : '';
+        const typeParams = this.scope.get_all_parameter_bindings( TYPE ) || [];
 
-        return this.annotate_type( `${safe( this.parent ? this.parent.name : '' )}${stringify_type_parargs( this.typeParameters )}${pp( this.parameters )}${rtypeChar}${returnType}` );
+        const strTP = typeParams.length ? `<${typeParams.map( ( { name, binding } ) => `${name}${binding}` ).join( ', ' )}>` : '';
+
+
+        return this.annotate_type( `${safe( this.parent ? this.parent.name : '' )}${strTP}${pp( this.parameters )}${rtypeChar}${returnType}` );
     }
 }
 
@@ -137,13 +138,11 @@ declare_handler( generic_read, SyntaxKind.FunctionDeclaration, SyntaxKind.Constr
  */
 function generic_read( node )
 {
-    const nodeName = SyntaxKind[ node.kind ];
-    const pseudoName = nodeName.replace( /^(.*?)(?:Type|Expression|Function|Signature|Declaration)?$/, '$1' ).toLowerCase();
-    const func = new SimpleFunction( pseudoName, !nodeName.endsWith( 'Type' ) && !nodeName.endsWith( 'Signature' ) );
+    const pseudoName = pseudo_typename( node );
+    const func = new SimpleFunction( pseudoName, !SyntaxKind[ node.kind ].endsWith( 'Type' ) && !SyntaxKind[ node.kind ].endsWith( 'Signature' ) );
 
     func.functionKind = node.kind;
 
-    // @todo Scope is weird here. Who owns the scope?
     if ( func.scope ) Scope.descend( func.scope );
 
     func.parameters = node.parameters && node.parameters.map( declaration );

@@ -4,280 +4,218 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { BIND_ALLOC, isFunction, isObject, isString, isSymbol, safe } from "./utils";
-import { modifierFlags, modify }                                                          from "./ts-utils";
-import { Scope }                                                                          from "./scope";
-import { SyntaxKind }                                                                     from "typescript";
-import { Type }                                                                           from "./types/base-type";
-
-const dangerousNames = Object.getOwnPropertyNames( Object.getPrototypeOf( {} ) );
-
-const escapeName = name => dangerousNames.includes( name ) || name.startsWith( '__' ) ? '__' + name : name;
-const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
+import { baseTypesToString, handle_kind, modify } from "./ts-utils";
+import { ValueType }                              from "./value-type";
+import { Scope }                                  from "./scope";
+import { get_primitive }                          from "./types/primitives";
+import { syntaxKind }                             from "./ts-helpers";
+import { SyntaxKind }                             from "typescript";
+import { TypeReference }                          from "./types/reference";
+import { ObjectType }                             from "./types/object-type";
 
 /** */
-class Overload
+export class Binding
 {
     /**
-     * @param {...Binding} bindings
+     * @param {?ts.Node} node
+     * @param {ValueType|Binding} vt
      */
-    constructor( ...bindings )
+    constructor( node, vt )
     {
-        this.overloaded = false;
-        /** @type {Array<Binding>} */
-        this.overloads = bindings;
+        this.valueType = vt;
+        this.value = void 0;
+        if ( node ) modify( node, this );
+        this.isOverloaded = vt.definition.getBaseTypeAsString() === 'function';
+        this.parameterIndex = 0;
+        this.entered = null;
+        this.isType = true;
     }
 
-    add( binding )
+    isA( constructorClass )
     {
-        this.overloads.push( binding );
+        return !!this.valueType && !!this.valueType.definition && this.valueType.definition.isA( constructorClass );
     }
 
-    get()
+    asVariable()
     {
-        return this.overloads;
-    }
-}
-
-
-/**
- * A binding is
- *
- * 1. An identifier, a name, basically
- * 2. A type bound to that name
- * 3. A value (not somethinmg we're concerned with at the moment, unless...)
- *
- * name: Number
- * value: NumberConstructor
- * type: FunctionType
- *
- * name: Binding
- * value: Binding (definition below in source, better named BindingConstructor)
- * type: ConstructorType
- *
- * var myBinding = new Binding( xyz );
- *
- * name: myBinding
- * value: ObjectType (empty instance, except for constructor, as usual)
- *
- * function Binding( binding )
- * {
- *     return Object.create( Binding.prototype, { constructor: Binding } );
- * }
- *
- * @class Binding
- * @implements {BindingInfo}
- */
-export class Binding extends Overload
-{
-    /**
-     * @param {BindingInfo|object} binding
-     */
-    constructor( binding )
-    {
-        // if ( isString( binding.type ) && binding.type === 'unknown' )
-        // {
-        //     console.error( 'UNKNOWN: ' + binding.name );
-        //     console.error( new Error().stack );
-        // }
-        super();
-
-        if ( isObject( binding.value ) )
-        {
-            const v = binding.value;
-
-            if ( v.scope )
-                v.scope.set_owner( this );
-
-            v.boundTo = this;
-
-            if ( v.hasMangled() )
-                this.mangled = v.getMangled( isSymbol( binding.name ) ? '' : binding.name );
-        }
-
-        // if ( isObject( binding.value ) ) binding.value.boundTo = binding;
-
-        this._parameterType = null;
-        this.bindType = binding.bindType || BIND_ALLOC;
-
-        if ( binding.name ) this.name = binding.name;
-        if ( binding.type ) this.type = binding.type;
-        if ( binding.value ) this.value = binding.value;
-
-        if ( !binding.type && this.value && this.value.constructor.name.endsWith( 'Type' ) ) this.type = 'abstract';
-
-        if ( binding.declaration ) this.declaration = binding.declaration;
-        if ( binding.scope ) this.scope = binding.scope;
-        if ( binding.parameter && binding.name !== 'this' )
-            this.parameter( binding.parameter, binding.parameterIndex );
-
-        if ( binding.declaration )
-            modify( binding.declaration, this );
-
-        Object.values( modifierFlags ).forEach( key => binding[ key ] && ( this[ key ] = true ) );
-
-        this.constraint = null;
-        this.isKeyOf = false;
-
-        if ( this.declaration )
-            modify( this.declaration, this );
+        this.isType = false;
+        return this;
     }
 
-    /**
-     * @return {string|symbol}
-     */
-    get realName()
+    get valueType()
     {
-        return this._name;
+        if ( this._valueType instanceof Binding )
+            return this._valueType.valueType;
+
+        return this._valueType;
     }
 
-    /**
-     * @return {string}
-     */
-    get name()
+    set valueType( vt )
     {
-        return this._name ? unescapeName( safe( this._name ) ) : '';
+        this._valueType = vt;
     }
 
-    /**
-     * @param {string} name
-     */
-    set name( name )
+    get scope()
     {
-        this._name = isSymbol( name ) ? name : escapeName( name );
-    }
-
-    /**
-     * @return {boolean}
-     */
-    get isParameter()
-    {
-        return !!this._parameterType;
+        return this.valueType && this.valueType.scope;
     }
 
     /**
      * @return {?string}
      */
-    get parameterType()
+    getBaseTypeAsString()
     {
-        return this._parameterType;
+        if ( !this.valueType || !this.valueType.definition )
+            return null;
+
+        return this.valueType.definition.getBaseTypeAsString();
     }
 
-    /**
-     * @return {?number}
-     */
-    get index()
+    enter()
     {
-        return this._index;
+        if ( !this.entered && this.valueType && this.valueType.scope )
+            this.entered = Scope.descend( this.valueType.scope );
     }
 
-    get properTypeName()
+    exit()
     {
-        return this.isTypeDefinition() ? this.name : this.type;
-    }
-
-    /**
-     * @param {string} ptype
-     * @param {number} [index]
-     */
-    parameter( ptype, index = Scope.current.getIndex( ptype ) )
-    {
-        this._parameterType = ptype;
-        this._index = index;
-    }
-
-    /**
-     * @param {boolean} opt
-     * @return {Binding|boolean}
-     */
-    optional( opt )
-    {
-        if ( opt !== void 0 )
+        if ( this.entered )
         {
-            this._optional = !!opt;
-            return this;
+            Scope.ascend();
+            this.entered = null;
         }
-
-        return this._optional;
     }
 
-    /**
-     * @param {boolean} isRest
-     * @return {Binding|boolean}
-     */
-    rest( isRest )
-    {
-        if ( isRest !== void 0 )
-        {
-            this._rest = isRest;
-            return this;
-        }
-
-        return this._rest;
-    }
-
-    /**
-     * @param {string} str
-     * @return {string}
-     */
-    annotate_name( str )
-    {
-        if ( this.isOptional )
-            str += '?';
-
-        return str;
-    }
-
-    has_decl()
-    {
-        if ( !Array.isArray( this.declaration ) )
-            return Binding.is_decl( this.declaration );
-
-        if ( this.declaration ) return false;
-
-        return this.declaration.some( Binding.is_decl );
-    }
-
-    /**
-     * @return {string}
-     */
     toString()
     {
-        const strValue = this.value ? `${this.value}` : '<no value>';
-        const base = isObject( this.type ) ? this.type : isObject( this.value ) ? this.value : this.type || this.value;
-        if ( !base ) {
-            console.error( 'wtf:', this );
-        }
-        const baseTypeStr = isString( base ) ? base : ( isFunction( base.getBaseTypeAsString ) ? base.getBaseTypeAsString() : ( base || "<missing type>" ) );
-
-        // if ( !isFunction( this.type.getBaseTypeAsString ) )
-        // {
-        //     console.error( 'getBaseTypeAsString is a ', typeof this.type.getBaseTypeAsString );
-        //     console.error( `and the class construtor is a ${this.type.constructor.name}` );
-        //     console.error( `and the type is ${this.type}` );
-        // }
-
-        return `[Binding -> name: "${this.annotate_name( this.name )}", type: ${baseTypeStr}, value: ${strValue}]`;
+        return `${this.valueType}`;
     }
 
     /**
+     * @param {Array<Binding>} bindings
+     * @param {Function} constructorClass
      * @return {boolean}
      */
-    isTypeDefinition()
+    static isExactlyA( bindings, constructorClass )
     {
-        return this.value instanceof Type;
+        return bindings.length === 1 && bindings[ 0 ].isA( constructorClass );
     }
 
-    /**
-     * @return {boolean}
-     */
-    isValueDeclaration()
+    static areAll( bindings, ...constructorClasses )
     {
-        return !this.isTypeDefinition();
+        return bindings.every( binding => constructorClasses.some( constr => binding.isA( constr ) ) );
     }
 
-    static is_decl( node )
+    static hasExactlyOne( bindings, constructorClass )
     {
-        return SyntaxKind[ node.kind ].endsWith( 'Declaration' );
+        const first = bindings.findIndex( binding => binding.isA( constructorClass ) );
+        const next = first !== -1 ? bindings.slice( first + 1 ).findIndex( binding => binding.isA( constructorClass ) ) : first;
+
+        return first !== -1 && next === -1;
+    }
+
+    static getExactlyOne( bindings, constructorClass )
+    {
+        const first = bindings.findIndex( binding => binding.isA( constructorClass ) );
+        const next = first !== -1 ? bindings.slice( first + 1 ).findIndex( binding => binding.isA( constructorClass ) ) : first;
+
+        return first !== -1 && next === -1 ? bindings[ first ] : null;
+    }
+
+    static without( bindings, constructorClass )
+    {
+        return bindings.filter( binding => !binding.isA( constructorClass ) );
     }
 }
+
+/**
+ * @param {Scope} scope
+ * @param {string|symbol} bindName
+ * @param {ts.Node} node
+ * @param {string} [paramType]
+ * @return {Binding}
+ */
+export function create_bound_type( scope, bindName, node, paramType )
+{
+    let specialType;
+    const typeNode = node.type || node;
+
+    // console.error( `bindName: ${bindName}, kind: ${typeNode.kind}, "kind": ${syntaxKind[ typeNode.kind ]}, toString: ${baseTypesToString[ typeNode.kind ]}` );
+    if ( baseTypesToString[ typeNode.kind ] )
+        specialType = get_primitive( baseTypesToString[ typeNode.kind ] );
+    // else if ( typeNode.kind === SyntaxKind.LiteralType )
+    //     specialType = new ValueType( handle_kind( typeNode ) );
+
+    // create value type
+    const vt = specialType || ValueType.create( typeNode );
+
+    // bind the name and value type
+    const binding = new Binding( node, vt );
+
+    if ( paramType )
+        binding.parameterIndex = scope.bind_as_parameter( bindName, binding, paramType );
+    else
+        scope.bind( bindName, binding );
+
+    return binding;
+}
+
+/**
+ * @param {Scope} scope
+ * @param {string|symbol} bindName
+ * @param {ts.Node} node
+ * @return {Binding}
+ */
+export function create_bound_variable( scope, bindName, node )
+{
+    let specialType;
+    const typeNode = node.type || node;
+
+    console.error( `bindName: ${bindName}, kind: ${typeNode.kind}, "kind": ${syntaxKind[ typeNode.kind ]}, toString: ${baseTypesToString[ typeNode.kind ]}` );
+    if ( baseTypesToString[ typeNode.kind ] )
+        specialType = get_primitive( baseTypesToString[ typeNode.kind ] );
+
+    // create value type
+    const vt = specialType || ValueType.create( typeNode );
+
+    // bind the name and value type
+    const binding = new Binding( node, vt ).asVariable();
+
+    scope.bind( bindName, binding );
+
+    return binding;
+}
+
+/**
+ * ## Thoughts on symbol resolution with duplicates
+ *
+ * 1. Resolve symbol
+ * 2. Not found, goto end
+ * 3. Remove type references
+ * 4. Anything left? No, goto end
+ * 5. Is there more than 1 thing left? Yes, goto duplicate error or something (how would this happen?)
+ * 6. Is it an interface? No, duplicate type conflict thingy
+ * 7. Add onto interface
+ *
+ *
+ * @return {?Binding|undefined}
+ */
+export function definition_resolution( name )
+{
+    let resolutions = Scope.current.resolve( name );
+
+    if ( !resolutions || resolutions.length === 0 ) return;
+
+    resolutions = Binding.without( resolutions, TypeReference );
+
+    if ( resolutions.length === 0 ) return;
+
+    if ( resolutions.length !== 1 )
+        throw new Error( `WTF?!?!? More than 1 resolutions left for "${name}"` );
+
+    if ( !Binding.isExactlyA( resolutions, ObjectType ) )
+        throw new Error( `Duplicate definition of "${name}"` );
+
+    return resolutions[ 0 ];
+}
+

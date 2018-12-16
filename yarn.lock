@@ -3942,6 +3942,10 @@ text-table@~0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
 
+text-treeview@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/text-treeview/-/text-treeview-1.0.1.tgz#5231455e1047b66637e133947d087ce1dba5250b"
+
 throat@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/throat/-/throat-4.1.0.tgz#89037cbc92c56ab18926e6ba4cbb200e15672a6a"

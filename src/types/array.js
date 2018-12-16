@@ -4,11 +4,6 @@
  * @since 0.0.1
  *******************************************************************************/
 
-
-
-
-"use strict";
-
 import { Type }                                            from "./base-type";
 import { baseTypesToString, declare_handler, handle_kind } from "../ts-utils";
 import { SyntaxKind }                                      from "typescript";
@@ -20,8 +15,20 @@ export class ArrayType extends Type
     constructor()
     {
         super( 'array' );
-        this.elementType = null;
+        this._elementType = null;
         this.baseType = baseTypesToString[ SyntaxKind.ObjectKeyword ];
+        this.__mangled = 'array';
+    }
+
+    get elementType()
+    {
+        return this._elementType;
+    }
+
+    set elementType( et )
+    {
+        this._elementType = et;
+        this.__mangled = `array~${et.__mangled}`;
     }
 
     /**
@@ -29,7 +36,7 @@ export class ArrayType extends Type
      */
     toString()
     {
-        return `${this.elementType}[]`;
+        return `${this._elementType}[]`;
     }
 }
 
@@ -40,8 +47,20 @@ export class TupleType extends Type
     constructor()
     {
         super( 'tuple' );
-        this.elementTypes = [];
+        this._elementTypes = [];
         this.baseType = baseTypesToString[ SyntaxKind.ObjectKeyword ];
+        this.__mangled = 'tuple';
+    }
+
+    set elementTypes( et )
+    {
+        this._elementTypes = et;
+        this.__mangled = `tuple~${this._elementTypes.length}~${et.map( t => t.__mangled ).join( '~' )}`;
+    }
+
+    get elementTypes()
+    {
+        return this._elementTypes;
     }
 
     /**
@@ -49,7 +68,7 @@ export class TupleType extends Type
      */
     toString()
     {
-        return `[${this.elementTypes.map( t => `${t}` )}]`;
+        return `[${this._elementTypes.map( t => `${t}` )}]`;
     }
 }
 
