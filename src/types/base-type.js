@@ -83,6 +83,15 @@ export class Type
         /** @type {string|Set<string>|function(string):boolean|Type} */
         this.baseType = 'object';
         this.isType = true;
+        this.separator = '|';
+
+        // These should all be on the Binding instead
+        this.isOptional = false;
+        this.addOptional = false;
+        this.removeOptional = false;
+        this.makeReadWrite = false;
+        this.makeReadonly = false;
+        this.isRest = false;
     }
 
     /**
@@ -114,15 +123,7 @@ export class Type
     getBaseTypeAsString()
     {
         if ( this.baseType instanceof Set )
-        {
-            for ( const bt of this.baseType )
-            {
-                if ( bt instanceof Type )
-                    return bt.getBaseTypeAsString();
-                else
-                    return basicGetType( bt );
-            }
-        }
+            return [ ...this.baseType ].map( bt => bt instanceof Type ? bt.getBaseTypeAsString() : basicGetType( bt ) ).join( ` ${this.separator} ` );
         else
             return basicGetType( this.baseType );
     }

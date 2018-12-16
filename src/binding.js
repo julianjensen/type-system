@@ -195,7 +195,14 @@ export class Binding
     toString()
     {
         const strValue = this.value ? `${this.value}` : '<no value>';
-        const baseTypeStr = `<${this.type.constructor.name}>` + ( isFunction( this.type.getBaseTypeAsString ) ? this.type.getBaseTypeAsString() : this.type ? this.type : "<missing type>" );
+        let baseTypeStr = 'ERROR';
+
+        if ( isString( this.type ) )
+            baseTypeStr = this.type;
+        else if ( this.value ) // this.type.constructor.name === 'Set' )
+            baseTypeStr = this.value.getBaseTypeAsString();
+
+        // const baseTypeStr = `<${this.type.constructor.name}>` + ( isFunction( this.type.getBaseTypeAsString ) ? this.type.getBaseTypeAsString() : this.type ? this.type : "<missing type>" );
 
         // if ( !isFunction( this.type.getBaseTypeAsString ) )
         // {

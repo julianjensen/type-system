@@ -9,8 +9,8 @@ import { Type }                                                                 
 import { baseTypesToString, declare_handler, entity_name, handle_kind, stringify_type_parargs } from "../ts-utils";
 import { SyntaxKind }                                                                           from "typescript";
 import { declaration }                                                                          from "../create-type";
-import { $, no_parent }                                                                         from "../utils";
 
+const unknownType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
 /**
  * @extends Type
  */
@@ -23,7 +23,7 @@ export class TypeReference extends Type
         this.resolvesTo = null;
         this.typeArguments = null;
         this.referenceNme = null;
-        this.baseType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
+        this.baseType = unknownType;
     }
 
     /**

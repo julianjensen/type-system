@@ -56,7 +56,7 @@ class UnionIntersection extends Type
 
     toString()
     {
-        return this.types.map( t => `${t}` || `no string for ${t.constructor.name}` ).join( ` ${this.separator} ` );
+        return this.types.map( t => ` ${t}` || `no string for ${t.constructor.name}` ).join( ` ${this.separator}` );
     }
 }
 

@@ -89,7 +89,7 @@ export class Scope
         binding.isBound = true;
         this.add( binding.name, binding );
 
-        if ( isObject( binding.value) && binding.value.scope && !this.owner )
+        if ( isObject( binding.value ) && binding.value.scope && !this.owner )
             this.owner = binding;
 
         return binding;
@@ -190,7 +190,7 @@ export class Scope
     toString( indent = 0 )
     {
         return [ ...this.symbols.entries() ]
-            // .filter( ( [ , binding ] ) => binding && binding.type && !( binding.type instanceof Primitive ) && !binding.isParameter )
+        // .filter( ( [ , binding ] ) => binding && binding.type && !( binding.type instanceof Primitive ) && !binding.isParameter )
             .map( ( [ , binding ] ) => Scope.str_symbol( indent, binding ) ).join( '\n' ); // name, `${type}`, type ) ).join( '\n' );
     }
 

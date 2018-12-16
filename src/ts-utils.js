@@ -254,8 +254,12 @@ export const baseTypesToString = {
 
 export const kindToType = x => isObject( x ) ? baseTypesToString[ x.kind ] : baseTypesToString[ x ];
 
-const MOGRIFIED = Symbol.for( 'mogrified' );
+// const MOGRIFIED = Symbol.for( 'mogrified' );
 
+/**
+ * @param {ts.Node} node
+ * @return {boolean}
+ */
 export function isKeyword( node )
 {
     let name = typeof node !== 'string' ? SyntaxKind[ node.kind ] : node;
@@ -263,22 +267,13 @@ export function isKeyword( node )
     return name.endsWith( 'Keyword' );
 }
 
-const modifierFlags = {
-    [ SyntaxKind.AbstractKeyword ]:  'isAbstract',
-    [ SyntaxKind.AsyncKeyword ]:     'isAsync',
-    [ SyntaxKind.ConstKeyword ]:     'isConst',
-    [ SyntaxKind.DeclareKeyword ]:   'isDeclare',
-    [ SyntaxKind.DefaultKeyword ]:   'isDefault',
-    [ SyntaxKind.ExportKeyword ]:    'isExport',
-    [ SyntaxKind.PublicKeyword ]:    'isPublic',
-    [ SyntaxKind.PrivateKeyword ]:   'isPrivate',
-    [ SyntaxKind.ProtectedKeyword ]: 'isProtected',
-    [ SyntaxKind.ReadonlyKeyword ]:  'isReadonly',
-    [ SyntaxKind.StaticKeyword ]:    'isStatic'
-};
-
 const error = ( expected, node ) => { throw new Error( `Expected ${expected}, found ${kind( node )}` ); };
 
+/**
+ * @param {ts.Node} node
+ * @param {...(string|SyntaxKind|*)} _kinds
+ * @return {function(Array<string|SyntaxKind>):boolean|boolean}
+ */
 export function is( node, ..._kinds )
 {
 
@@ -292,6 +287,10 @@ export function is( node, ..._kinds )
     return _identify;
 }
 
+/**
+ * @param {ts.Node|number|string} node
+ * @return {string}
+ */
 export function kind( node )
 {
     if ( typeof node === 'number' )
@@ -304,11 +303,21 @@ export function kind( node )
 
 export const pkind = kind;
 
+/**
+ * @param {ts.Identifier} node
+ * @return {string}
+ * @private
+ */
 function _identifier( node )
 {
     return unescapeName( node.escapedText );
 }
 
+/**
+ * @param {ts.Identifier} node
+ * @param noThrow
+ * @return {string}
+ */
 export function identifier( node, noThrow = false )
 {
     if ( is( node, SyntaxKind.Identifier ) )
@@ -318,6 +327,11 @@ export function identifier( node, noThrow = false )
         error( 'Identifier', node );
 }
 
+/**
+ * @param {ts.Identifier|ts.EntityName} node
+ * @return {string}
+ * @private
+ */
 function _entity_name( node )
 {
     if ( is( node, SyntaxKind.Identifier ) )
@@ -326,6 +340,10 @@ function _entity_name( node )
         return _entity_name( node.left ) + '.' + _identifier( node.right );
 }
 
+/**
+ * @param {ts.EntityName} node
+ * @return {string}
+ */
 export function entity_name( node )
 {
     if ( is( node, SyntaxKind.Identifier ) )
@@ -336,6 +354,11 @@ export function entity_name( node )
     error( 'entity name', node );
 }
 
+/**
+ * @param {ts.PropertyName|ts.Identifier|ts.ComputedPropertyName} node
+ * @param {boolean} [noThrow=false]
+ * @return {string}
+ */
 export function property_name( node, noThrow = false )
 {
     switch ( node.kind )
@@ -353,6 +376,11 @@ export function property_name( node, noThrow = false )
     }
 }
 
+/**
+ * @param {ts.Identifier|ts.StringLiteral|ts.LiteralType} node
+ * @param {boolean} [noThrow=false]
+ * @return {*}
+ */
 export function module_name( node, noThrow = false )
 {
     if ( is( node ).a( SyntaxKind.Identifier ) )
@@ -364,11 +392,18 @@ export function module_name( node, noThrow = false )
         throw new Error( `Expected module name, found ${kind( node )}` );
 }
 
-
+/**
+ * @param {*} node
+ * @param {boolean} [noThrow=false]
+ */
 function binding_pattern( node, noThrow = false )
 {
 }
 
+/**
+ * @param {ts.Identifier|ts.BindingName} node
+ * @return {string}
+ */
 export function binding_name( node )
 {
     let name = identifier( node, true );
@@ -381,6 +416,10 @@ export function binding_name( node )
     error( 'identifier or binding pattern', node );
 }
 
+/**
+ * @param {ts.DeclarationName} node
+ * @return {string}
+ */
 function declaration_name( node )
 {
     let declName = property_name( node, true );
@@ -395,27 +434,31 @@ function declaration_name( node )
 
 const handlers = new Map();
 
+/**
+ * @param {function} handler
+ * @param {...(SyntaxKind|string|number)}kinds
+ */
 export function declare_handler( handler, ...kinds )
 {
     kinds.forEach( kind => handlers.set( kind, handler ) );
 }
 
+/**
+ * @param {ts.Node} node
+ */
 export const handle_type = node => {
     handle_kind( node );
 };
 
-export const handle_kind = node => { // ( _kind, name, node ) => {
-    // if ( !name && !node )
-    // {
-    //     node = _kind;
+/**
+ * @param {ts.Node} node
+ * @return {never}
+ */
+export const handle_kind = node => {
     const _kind = node.kind;
-    // }
 
     if ( handlers.has( _kind ) )
-    {
-        // console.error( `kind handler for "${kind(_kind)}", name: ${name}` );
         return handlers.get( _kind )( node );
-    }
 
     node_fatal( `No handler for ${SyntaxKind[ _kind ]}`, node );
     throw new Error( `No handler for ${SyntaxKind[ _kind ]}` );
@@ -436,7 +479,7 @@ export const modifierFlags = {
 };
 
 /**
- * @param {ts.Node} node
+ * @param {ts.Node|ts.PropertyDeclaration|ts.MappedTypeNode|ts.IndexedAccessTypeNode} node
  * @param {Type} type
  * @return {Type}
  */

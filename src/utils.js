@@ -37,7 +37,15 @@ const getValue = value => isFunction( value ) ? value() : value;
 
 const dangerousNames = Object.getOwnPropertyNames( Object.getPrototypeOf( {} ) );
 
+/**
+ * @param {string} name
+ * @return {string}
+ */
 export const escapeName = name => dangerousNames.includes( name ) || name.startsWith( '__' ) ? '__' + name : name;
+/**
+ * @param {string} name
+ * @return {string}
+ */
 export const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
 
 export const no_parent = o => ( { ...o, parent: null } );
