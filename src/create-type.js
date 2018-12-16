@@ -19,7 +19,7 @@ import {
     CONSTRUCTOR,
     CALL,
     TYPE,
-    FORMAL, INDEX, CONTEXT
+    FORMAL, INDEX, CONTEXT, isString, isObject, isSymbol
 } from "./utils";
 import "./types/all-types";
 import { ObjectType }    from "./types/object-type";
@@ -37,19 +37,21 @@ import { Binding }       from "./binding";
 import { TypeParameter } from "./types/type-params-args";
 import { TypeAlias }     from "./types/reference";
 
-const Namespace = ModuleType;
-
 /**
  * @param {string} name
- * @param {Type} value
+ * @param {Type|Primitive} value
  * @param {ts.Node} def
  * @return {Binding}
  */
 function bind_as_parameter( name, value, def )
 {
+    let type;
+
+    // [ value, type ] = swap_hack( value, isObject( value ) ? value.baseType : void 0 );
+
     return Scope.current.bind( new Binding( {
         name,
-        type:        value.baseType,
+        type,
         value,
         declaration: def,
         parameter:   value instanceof TypeParameter ? TYPE : name === 'this' ? CONTEXT : FORMAL
@@ -64,24 +66,32 @@ function bind_as_parameter( name, value, def )
  */
 function add_signature( name, node, func )
 {
-    let parent = Scope.current.resolve( name, true );
+    // func.name = name;
+    return Scope.current.bind( new Binding( { bindType: BIND_ALLOC, name, type: baseTypesToString[ SyntaxKind.FunctionKeyword ], value: func, declaration: node } ) );
+    // let previous = Scope.current.resolve( name, true );
 
-    if ( !parent )
-    {
-        parent = new Binding( { bindType: BIND_ALLOC, name, type: baseTypesToString[ SyntaxKind.FunctionKeyword ], value: new CallableType(), declaration: node } );
-        Scope.current.bind( parent );
-    }
-    else
-        parent.declaration = add_to_list( parent.declaration, node );
+    // if ( !previous )
+    // {
+    //     previous = new Binding( { bindType: BIND_ALLOC, name, type: baseTypesToString[ SyntaxKind.FunctionKeyword ], value: new CallableType(), declaration: node } );
+    //     Scope.current.bind( previous );
+    // }
+    // else
+    // {
+    //     previous.declaration = add_to_list( previous.declaration, node );
+    // }
 
-    func.parent = parent;
-    func.funcName = name;
-
-    parent.value.add_signature( func );
-
-    return parent;
+    // func.funcName = name;
+    //
+    // previous.value.add_signature( func );
+    //
+    // return previous;
 }
 
+function swap_hack( value, type )
+{
+    return isString( value ) ? [ type, value ] : [ value, type ];
+
+}
 
 /**
  * @param {ts.Node|ts.Declaration|ts.VariableStatement|ts.VariableDeclaration|ts.SourceFile|ts.MethodSignature|ts.TypeReferenceNode|ts.LiteralTypeNode|ts.ClassDeclaration} def
@@ -97,8 +107,7 @@ export function declaration( def, _name, _type, _value )
     let name  = _name,
         type  = _type,
         value = _value,
-        binding,
-        scope;
+        binding;
 
     set_error_node( def );
     debug_name( def );
@@ -152,6 +161,8 @@ export function declaration( def, _name, _type, _value )
             value = handle_kind( def.type );
             type = value.baseType;
 
+            [ value, type ] = swap_hack( value, type );
+
             Scope.current.bind( new Binding( { name, value, type, declaration: def } ) );
             break;
 
@@ -163,6 +174,9 @@ export function declaration( def, _name, _type, _value )
 
             binding = Scope.current.bind( new Binding( { name, value, type, declaration: def } ) );
             Scope.descend( binding.value.scope );
+
+            if ( def.typeParameters )
+                def.typeParameters.map( declaration );
 
             def.members.forEach( declaration );
 

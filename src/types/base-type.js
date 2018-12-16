@@ -4,8 +4,8 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { Scope }                from "../scope";
-import { isFunction, isString } from "../utils";
+import { Scope }                          from "../scope";
+import { isFunction, isString, isSymbol } from "../utils";
 
 /**
  * @param {Array<string>} stack
@@ -83,15 +83,24 @@ export class Type
         /** @type {string|Set<string>|function(string):boolean|Type} */
         this.baseType = 'object';
         this.isType = true;
-        this.separator = '|';
+        this.mangled = null;
+    }
 
-        // These should all be on the Binding instead
-        this.isOptional = false;
-        this.addOptional = false;
-        this.removeOptional = false;
-        this.makeReadWrite = false;
-        this.makeReadonly = false;
-        this.isRest = false;
+    /**
+     * @return {boolean}
+     */
+    hasMangled()
+    {
+        return !!this.mangled;
+    }
+
+    /**
+     * @param {string} name
+     * @return {string}
+     */
+    getMangled( name )
+    {
+        return this.mangled ? `${name}$${this.mangled}$` : name;
     }
 
     /**

@@ -4,23 +4,23 @@
  * @since 1.0.0
  * @date Fri Aug 17 2018
  *********************************************************************************************************************/
+
 "use strict";
 
 import { default as fsWithCallbacks } from "fs";
 
 const fs = fsWithCallbacks.promises;
 
-import { declaration }                               from "./src/create-type";
-import { log, $, fatal, warn, set_options, set_meta, node_fatal } from "./src/utils";
-import { Scope }                                                  from "./src/scope";
-import { DEBUG }                                                  from "./src/constants";
-// import { init }                                                   from "./src/type-utils";
-import { default as program }                                     from "commander";
-// import { Parser }                     from "./src/parser";
-import * as ts                                                    from 'typescript';
-import { simple_ts_ast, to_safe_string }                          from "./src/ts-symbols";
-import globby                                         from "globby";
-import { primitive_init }                   from "./src/types/primitives";
+import { declaration }                                                                 from "./src/create-type";
+import { log, $, fatal, warn, set_options, set_meta, node_fatal, no_parent, safe_obj } from "./src/utils";
+import { Scope }                                                                       from "./src/scope";
+import { DEBUG }                                                                       from "./src/constants";
+import { default as program }                                                          from "commander";
+import * as ts                                                                         from 'typescript';
+import { simple_ts_ast, to_safe_string }                                               from "./src/ts-symbols";
+import globby                                                                from "globby";
+import { primitive_init }                                         from "./src/types/primitives";
+import { SyntaxKind }                                             from "./src/ts-helpers";
 
 const
     _options = {},
@@ -91,7 +91,7 @@ if ( !options.command )
 set_options( options );
 primitive_init();
 
-const nameList = [ 'identity', 'strIdent', 'HasLength', 'twoTyped', 'Hmmm', 'explicit', 'X', 'Y', 'abc', 'def', 'Abc' ];
+// const nameList = [ 'identity', 'strIdent', 'HasLength', 'twoTyped', 'Hmmm', 'explicit', 'X', 'Y', 'abc', 'def', 'Abc' ];
 
 async function process_all()
 {
@@ -104,6 +104,9 @@ async function process_all()
 
     try
     {
+        const _out = JSON.stringify( filesRead.map( key => safe_obj( files[ key ].ast.statements ) ), null, 4 );
+        await fs.writeFile( './ast.json', _out );
+
         filesRead.forEach( key => {
             const file = files[ key ];
 
@@ -134,7 +137,7 @@ async function process_all()
         return output;
     }, {} );
 
-    console.log( JSON.stringify( safe, null, 4 ) );
+    // console.log( JSON.stringify( safe, null, 4 ) );
     // console.log( JSON.stringify( to_safe_string( files ), null, 4 ) );
 }
 

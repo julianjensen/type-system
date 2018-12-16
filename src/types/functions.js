@@ -98,6 +98,17 @@ export class SimpleFunction extends Type
         this.baseType = baseTypesToString[ SyntaxKind.FunctionKeyword ];
     }
 
+    /**
+     * @return {SimpleFunction}
+     */
+    mangle()
+    {
+        const paramsEnd = this.parameters.findIndex( p => p.isOptional || p.isRest );
+        // @todo This can't be base type name, it has to be the actual type name. How to get it from here?
+        this.mangled = this.parameters.slice( 0, paramsEnd === -1 ? this.parameters.length : paramsEnd ).map( p => p.value.getBaseTypeAsString() ).join( '!' );
+        return this;
+    }
+
     set funcName( fname )
     {
         this._funcName = fname;
@@ -116,12 +127,6 @@ export class SimpleFunction extends Type
     }
 }
 
-// declare_handler( construct_signature_read, SyntaxKind.ConstructSignature, SyntaxKind.Constructor );
-// declare_handler( call_signature_read, SyntaxKind.CallSignature );
-// declare_handler( method_signature_read, SyntaxKind.MethodSignature );
-// declare_handler( function_type_read, SyntaxKind.FunctionType );
-// declare_handler( constructor_type_read, SyntaxKind.ConstructorType );
-
 declare_handler( generic_read, SyntaxKind.ConstructorType, SyntaxKind.FunctionType, SyntaxKind.FunctionExpression, SyntaxKind.ArrowFunction );
 declare_handler( generic_read, SyntaxKind.MethodSignature, SyntaxKind.IndexSignature, SyntaxKind.ConstructSignature, SyntaxKind.CallSignature );
 declare_handler( generic_read, SyntaxKind.FunctionDeclaration, SyntaxKind.Constructor );
@@ -138,6 +143,7 @@ function generic_read( node )
 
     func.functionKind = node.kind;
 
+    // @todo Scope is weird here. Who owns the scope?
     if ( func.scope ) Scope.descend( func.scope );
 
     func.parameters = node.parameters && node.parameters.map( declaration );
@@ -146,6 +152,8 @@ function generic_read( node )
 
     if ( node.type )
         func.type = handle_kind( node.type );
+
+    func.mangle();
 
     if ( func.scope ) Scope.ascend();
 

@@ -4,11 +4,12 @@
  * @since 0.0.1
  *******************************************************************************/
 
-import { Scope }                                                                                from "../scope";
-import { Type }                                                                                 from "./base-type";
-import { baseTypesToString, declare_handler, entity_name, handle_kind, stringify_type_parargs } from "../ts-utils";
-import { SyntaxKind }                                                                           from "typescript";
-import { declaration }                                                                          from "../create-type";
+import { Scope }                                                                                            from "../scope";
+import { Type }                                                                                             from "./base-type";
+import { baseTypesToString, declare_handler, entity_name, handle_kind, identifier, stringify_type_parargs } from "../ts-utils";
+import { SyntaxKind }                                                                                       from "typescript";
+import { declaration }                                                                                      from "../create-type";
+import { $, no_parent }                                                                                     from "../utils";
 
 const unknownType = baseTypesToString[ SyntaxKind.UnknownKeyword ];
 /**
@@ -87,6 +88,14 @@ export class TypeAlias extends Type
     get baseType()
     {
         return this.resolvesTo || baseTypesToString[ SyntaxKind.UnknownKeyword ];
+    }
+
+    /**
+     * @param {*} v
+     */
+    set baseType( v )
+    {
+        // nop
     }
 
     /**
@@ -237,7 +246,7 @@ function new_type_predicate( node )
 {
     const type = new TypePredicateType();
 
-    type.parameter = Scope.current.resolve( node.parameterName );
+    type.parameter = Scope.current.resolve( identifier( node.parameterName ) );
     type.type = handle_kind( node.type );
 
     return type;
