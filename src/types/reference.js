@@ -155,7 +155,7 @@ export class InferType extends Type
 
     toString()
     {
-        return `infer ${this.boundTo.name}${stringify_type_parargs( this.typeParameter )}`;
+        return `infer ${stringify_type_parargs( this.typeParameter )}`;
     }
 }
 

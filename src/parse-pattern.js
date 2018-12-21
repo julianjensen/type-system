@@ -5,89 +5,90 @@
  * @date 16-Dec-2018
  *********************************************************************************************************************/
 
-import { SyntaxKind }           from "typescript";
-import { $, asArray, safe_obj } from "./utils";
-import { kind }                 from './ts-utils';
-
-// import { identifier } from "./ts-utils";
-
-function identifier( node )
-{
-    return node.text || node.escapedText;
-}
-
-function property_name( node )
-{
-    return identifier( node );
-}
+import { SyntaxKind }  from "typescript";
+import { asArray }     from "./utils";
+import {
+    handle_kind,
+    identifier,
+    property_name,
+    kind
+} from './ts-utils';
+import { TypeLiteral } from "./types/object-type";
+import { Scope }       from "./scope";
+import { Binding }     from "./binding";
+import { ValueType }   from "./value-type";
 
 /**
- * @param {ts.BindingElement} lhs
+ * @param {string} name
+ * @param {ts.TypeLiteralNode|ts.PropertySignature|ts.TypeNode} rhs
+ * @return {ts.TypeElement}
  */
-function get_name_and_type( lhs, rhs )
-{
-    console.log( `\nget_name_and_type(${lhs.name ? identifier( lhs.propertyName || lhs.name ) : 'no name'}, ${kind( rhs )})` );
-    console.error( 'lhs:', $( safe_obj( lhs ), 1 ) );
-    console.error( 'rhs:', $( safe_obj( rhs ), 1 ) );
-    // Take from RHS using `propertyName`, if present, otherwise use `name`
-    const rhsItem = find_prop( identifier( lhs.propertyName || lhs.name ), rhs );
-    // Our name will be `name` which may be another binding
-    const ourName = read_pattern( lhs.name, rhsItem );
-
-    return { ...ourName, type: rhsItem || rhsItem.type };
-}
-
 function find_prop( name, rhs )
 {
     if ( rhs.kind === SyntaxKind.TypeLiteral )
         return rhs.members.find( prop => identifier( prop.name ) === name );
-    // The following won't really work but shouldn't appear in ambient files
-    else if ( rhs.kind === SyntaxKind.ObjectLiteralExpression )
-        return rhs.properties.find( prop => identifier( prop.name ) === name );
+    else if ( rhs.kind === SyntaxKind.PropertySignature )
+        return find_prop( name, rhs.type );
+
+    throw new Error( `Not handling "${kind( rhs )}" in pattern binding` );
 }
 
-export function read_pattern( lhs, rhs, result = {} )
-{
-    console.log( '\nread_pattern' );
-    console.error( `lhs: ${kind( lhs )}, rhs: ${kind( rhs )}` );
-    switch ( lhs.kind )
-    {
-        case SyntaxKind.ObjectBindingPattern:
-            lhs.elements.forEach( bindingElement => read_pattern( bindingElement, rhs, result ) );
-            return result;
-
-        case SyntaxKind.OmittedExpression:
-            return result;
-
-        case SyntaxKind.ArrayBindingPattern:
-            const rhsTypes = rhs.type.elementType || rhs.type.elementTypes;
-            const getType = index => Array.isArray( rhsTypes ) ? rhsTypes[ index ] : rhsTypes;
-            console.error( 'rhsTypes:', $( safe_obj( rhsTypes ), 1 ) );
-            console.error( 'elements:', lhs.elements.map( e => kind( e ) ).join( ', ' ) );
-            const fromArray = lhs.elements.reduce( ( all, _lhs, i ) => {
-                console.error( `inside reduce(${i}):`, $( safe_obj( _lhs ), 1 ) );
-                return ( { ...all, ...read_pattern( _lhs, getType( i ) ) } );
-            }, {} );
-            console.error( 'reduced:', $( safe_obj( fromArray ), 1 ) );
-            return { ...result, ...fromArray };
-
-        case SyntaxKind.BindingElement:
-            return { ...result, ...get_name_and_type( lhs, rhs ) };
-
-        case SyntaxKind.Identifier:
-            return lhs.text || lhs.escapedText;
-    }
-}
-
+/**
+ * @param {ts.Node} node
+ * @return {boolean}
+ */
 const isOmitted = node => node.kind === SyntaxKind.OmittedExpression;
 
-export function ecma_binding( node, rhs, result = {} )
+/**
+ * @param {ts.ObjectBindingPattern|ts.ArrayBindingPattern} lhs
+ * @param {ts.TypeLiteralNode|ts.ArrayLiteralExpression} rhs
+ * @return {object}
+ */
+export function binding_pattern( lhs, rhs )
+{
+    const defs = read_binding( lhs, rhs );
+
+    // console.error( $( safe_obj( defs ), 3 ) );
+
+    Object.entries( defs ).forEach( ( [ varName, { rhs } ] ) => {
+        defs[ varName ].node = rhs;
+        defs[ varName ].type = handle_kind( rhs.type || rhs );
+    } );
+
+    return defs;
+}
+
+/**
+ * @param {ts.ObjectBindingPattern|ts.ArrayBindingPattern} lhs
+ * @param {ts.TypeLiteralNode|ts.ArrayLiteralExpression} rhs
+ * @return {TypeLiteral}
+ */
+export function pattern_as_type_literal( lhs, rhs )
+{
+    const tl = new TypeLiteral();
+
+    Scope.descend( tl.scope );
+
+    const members = binding_pattern( lhs, rhs );
+
+    for ( const [ name, { type, node } ] of Object.entries( members ) )
+    {
+        const binding = new Binding( node, new ValueType( type ) );
+        Scope.current.bind( name, binding );
+    }
+
+    Scope.ascend();
+
+    return tl;
+}
+
+function read_binding( node, rhs, result = {} )
 {
     if ( node.kind === SyntaxKind.ObjectBindingPattern )
         return { ...result, ...getPropertyList( node ).reduce( ( all, prop ) => ( { ...all, ...getBindingProperty( prop, rhs ) } ), {} ) };
     else if ( node.kind === SyntaxKind.ArrayBindingPattern )
     {
-        const { elements, rhs: target } = getBindingElementList( node, rhs );
+        const { lhs: elements, rhs: target } = getBindingElementList( node, rhs );
         return {
             ...result, ...elements.reduce( ( all, el, i ) => {
                 if ( isOmitted( el ) ) return all;
@@ -105,19 +106,19 @@ function getBindingProperty( node, rhs )
     {
         const propName = property_name( node.name );
 
-        return { [ propName ]: { initializer: node.initializer, rhs: find_prop( propName, rhs ) } };
+        return { [ propName ]: { initializer: node.initializer, rhs: find_prop( propName, rhs.type || rhs ) } };
     }
 
     if ( SyntaxKind[ node.name.kind ].endsWith( 'Pattern' ) )
-        return { ...ecma_binding( node.name, find_prop( property_name( node.propertyName ), rhs ) || node.initializer ) };
+        return { ...read_binding( node.name, find_prop( property_name( node.propertyName ), rhs ) || node.initializer ) };
 }
 
 function getBindingElement( lhs, rhs )
 {
     if ( SyntaxKind[ lhs.name.kind ].endsWith( 'Pattern' ) )
-        return { ...ecma_binding( lhs.name, rhs || lhs.initializer ) };
+        return { ...read_binding( lhs.name, rhs || lhs.initializer ) };
 
-    return { [ property_name( lhs.name ) ]: { initializer: lhs.initializer } };
+    return { [ property_name( lhs.name ) ]: { rhs, initializer: lhs.initializer } };
 }
 
 function getPropertyList( node )
@@ -125,11 +126,14 @@ function getPropertyList( node )
     return node.elements;
 }
 
+/**
+ * @param {ts.ArrayBindingPattern} node
+ * @param {ts.PropertySignature|ts.TupleType|ts.TupleTypeNode|ts.ArrayTypeNode|ts.BindingElement} rhs
+ * @return {{lhs: ts.NodeArray<ts.BindingElement>, rhs: (*|ts.TypeNode|ts.NodeArray<ts.TypeNode>)}}
+ */
 function getBindingElementList( node, rhs )
 {
-    console.error( 'node:', $( safe_obj( node ), 1 ) );
-    console.error( 'rhs:', $( safe_obj( rhs ), 1 ) );
-    return { lhs: node.elements, rhs: rhs.elementType || rhs.elementTypes };
+    return { lhs: node.elements, rhs: rhs.type.elementType || rhs.type.elementTypes };
 }
 
 function get_target( _rhs, index )

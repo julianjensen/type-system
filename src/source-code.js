@@ -412,7 +412,7 @@ export function create_reporters( fileName, source )
      */
     function getSourceTextOfNodeFromSourceFile( sourceFile, node, includeTrivia = false )
     {
-        if ( nodeIsMissing( node ) )
+        if ( nodeIsMissing( node ) || !sourceFile )
             return "";
 
         const text = sourceFile.text;

@@ -15,6 +15,12 @@ const unescapeName = name => name.startsWith( '__' ) ? name.substr( 2 ) : name;
 const INDENT_SIZE = 2;
 const _spaces = indent => ' '.repeat( indent * INDENT_SIZE );
 
+const stats = {
+    scopes: 0,
+    symbols: 0
+
+};
+
 /** */
 export class Scope
 {
@@ -31,6 +37,7 @@ export class Scope
         this.symbols = new Map();
         this.parameters = {};
         this._ambient = true;
+        ++stats.scopes;
     }
 
     setAmbient( onOff )
@@ -84,15 +91,12 @@ export class Scope
         const _name = safe( name );
         const __name = isSymbol( name ) ? name : escapeName( name );
 
+        ++stats.symbols;
+
         if ( this.symbols.has( __name ) )
         {
             const syms = this.symbols.get( __name );
             const allFuncs = Scope.all_functions( binding, ...syms );
-
-            if ( name === 'NaN' )
-            {
-                console.error( `allFuncs: ${allFuncs}, syms.length: ${syms.length}, isType? ${binding.isType}, syms[0].isType: ${syms[ 0 ].isType}` );
-            }
 
             if ( !allFuncs && ( syms.length !== 1 || binding.isType === syms[ 0 ].isType ) )
             {
@@ -202,16 +206,30 @@ export class Scope
         return lines.join( '\n' );
     }
 
+    /**
+     * @return {string}
+     */
     treeify()
     {
-        return tree( [
-            {
-                text:     `scope created by ${this.createdBy || '<no creator>'}`,
-                children: this._treeify()
-            }
-        ] );
+        try
+        {
+            return tree( [
+                {
+                    text:     `scope created by ${this.createdBy || '<no creator>'}`,
+                    children: this._treeify()
+                }
+            ] );
+        }
+        catch ( e )
+        {
+            console.error( e );
+        }
     }
 
+    /**
+     * @return {Array}
+     * @private
+     */
     _treeify()
     {
         let lines = [];
@@ -261,6 +279,11 @@ export class Scope
     static ascend()
     {
         return Scope.current = Scope.stack.pop();
+    }
+
+    static get_stats()
+    {
+        return stats;
     }
 }
 

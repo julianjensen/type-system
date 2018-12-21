@@ -128,6 +128,16 @@ class NeverType extends Primitive
     { super( 'never' ); }
 }
 
+/**
+ * @extends Type
+ */
+class BigIntType extends Primitive
+{
+    /** */
+    constructor()
+    { super( 'bigint' ); }
+}
+
 const autoAdd = [
     [ 'any', AnyType, SyntaxKind.AnyKeyword ],
     [ 'number', NumberType, SyntaxKind.NumberKeyword ],
@@ -141,7 +151,8 @@ const autoAdd = [
     [ 'null', NullType, SyntaxKind.NullKeyword ],
     [ 'void', VoidType, SyntaxKind.VoidKeyword ],
     [ 'never', NeverType, SyntaxKind.NeverKeyword ],
-    [ 'this', ThisType, [ SyntaxKind.ThisKeyword, SyntaxKind.ThisType ] ]
+    [ 'this', ThisType, [ SyntaxKind.ThisKeyword, SyntaxKind.ThisType ] ],
+    [ 'bigint', BigIntType, [ SyntaxKind.BigIntKeyword ] ]
     // [ 'this', ThisType, SyntaxKind.ThisType ]
 ];
 

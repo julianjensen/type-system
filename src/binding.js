@@ -11,6 +11,7 @@ import { get_primitive }             from "./types/primitives";
 import { TypeReference }             from "./types/reference";
 import { ObjectType }                from "./types/object-type";
 import { Type }                      from "./types/base-type";
+import { safe }                      from "./utils";
 
 /** */
 export class Binding
@@ -48,6 +49,9 @@ export class Binding
         return this;
     }
 
+    /**
+     * @return {?ValueType}
+     */
     get valueType()
     {
         if ( this._valueType instanceof Binding )
@@ -56,6 +60,9 @@ export class Binding
         return this._valueType;
     }
 
+    /**
+     * @param {?ValueType} vt
+     */
     set valueType( vt )
     {
         this._valueType = vt;
@@ -71,10 +78,7 @@ export class Binding
      */
     getBaseTypeAsString()
     {
-        if ( !this.valueType || !this.valueType.definition )
-            return null;
-
-        return this.valueType.definition.getBaseTypeAsString();
+        return this.valueType && this.valueType.getBaseTypeAsString();
     }
 
     enter()
@@ -99,6 +103,8 @@ export class Binding
 
     add_modifiers( str )
     {
+        str = safe( str );
+
         if ( this.makeReadonly )
             str = `+readonly ${str}`;
         else if ( this.makeReadWrite )
@@ -152,9 +158,13 @@ export class Binding
         return bindings.filter( binding => !binding.isA( constructorClass ) );
     }
 
-    getMangled()
+    /**
+     * @param {?string} [name]
+     * @return {string}
+     */
+    getMangled( name )
     {
-        return this.valueType.getMangled();
+        return this.valueType.getMangled( name );
     }
 
     getType()
@@ -180,23 +190,28 @@ export class Binding
 /**
  * @param {Scope} scope
  * @param {string|symbol} bindName
- * @param {ts.Node} node
+ * @param {ts.Node|Type} node
  * @param {string} [paramType]
  * @return {Binding}
  */
 export function create_bound_type( scope, bindName, node, paramType )
 {
-    let specialType;
+    let specialType, vt, binding;
     const typeNode = node.parameters ? ( node || node.type ) : ( node.type || node );
 
-    if ( baseTypesToString[ typeNode.kind ] )
-        specialType = get_primitive( baseTypesToString[ typeNode.kind ] );
+    if ( node instanceof Type )
+        binding = new Binding( null, new ValueType( node ) );
+    else
+    {
+        if ( baseTypesToString[ typeNode.kind ] )
+            specialType = get_primitive( baseTypesToString[ typeNode.kind ] );
 
-    // create value type
-    const vt = specialType || ValueType.create( typeNode );
+        // create value type
+        vt = specialType || ValueType.create( typeNode );
 
-    // bind the name and value type
-    const binding = new Binding( node, vt );
+        // bind the name and value type
+        binding = new Binding( node, vt );
+    }
 
     if ( paramType )
         binding.parameterIndex = scope.bind_as_parameter( bindName, binding, paramType );

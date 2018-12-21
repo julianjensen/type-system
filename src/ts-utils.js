@@ -224,7 +224,9 @@ export const baseTypesToString = {
     [ SyntaxKind.TypeParameter ]:                      'type',
     [ SyntaxKind[ SyntaxKind.TypeParameter ] ]:        'type',
     [ SyntaxKind.ThisKeyword ]:                        'this',
-    [ SyntaxKind[ SyntaxKind.ThisKeyword ] ]:          'this'
+    [ SyntaxKind[ SyntaxKind.ThisKeyword ] ]:          'this',
+    [ SyntaxKind.BigIntKeyword ]:                       'bigint',
+    [ SyntaxKind[ SyntaxKind.BigIntKeyword ] ]:         'bigint'
 };
 
 // export const structuredTypesToBaseTypes = {
@@ -411,7 +413,9 @@ export const handle_kind = node => {
         return handlers.get( _kind )( node );
     }
 
-    node_fatal( `No handler for ${SyntaxKind[ _kind ]}`, node );
+    if ( node )
+        node_fatal( `No handler for ${SyntaxKind[ _kind ]}`, node );
+
     throw new Error( `No handler for ${SyntaxKind[ _kind ]}` );
 };
 

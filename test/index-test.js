@@ -4,16 +4,9 @@
  * @since 1.0.0
  * @date Fri Aug 17 2018
  *********************************************************************************************************************/
-"use strict";
 
-const
-    expect = require( 'chai' ).expect,
-    app = require( '../' );
-
-describe( 'type-system', function() {
-
-    it( 'should do stuff', () => {
-        expect( 1 ).to.equal( 1 );
+describe( 'empty', () => {
+    it( 'should do nothing', () => {
+        expect( 1 ).toEqual( 1 );
     } );
-
 } );

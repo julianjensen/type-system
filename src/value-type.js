@@ -46,4 +46,9 @@ export class ValueType {
     {
         return this.definition ? this.definition.getMangled( name ) : '';
     }
+
+    getBaseTypeAsString()
+    {
+        return this.definition && this.definition.getBaseTypeAsString();
+    }
 }

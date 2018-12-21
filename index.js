@@ -10,13 +10,13 @@ import { default as fsWithCallbacks } from "fs";
 
 const fs = fsWithCallbacks.promises;
 
-import { declaration }                                         from "./src/create-type";
-import { log, $, set_options, set_meta, node_fatal, safe_obj } from "./src/utils";
-import { Scope }                                               from "./src/scope";
-import { default as program }                                  from "commander";
-import { simple_ts_ast, to_safe_string }                       from "./src/ts-symbols";
-import globby                                                  from "globby";
-import { primitive_init }                                      from "./src/types/primitives";
+import { declaration }                                                  from "./src/create-type";
+import { log, $, set_options, set_meta, node_fatal, safe_obj, asArray } from "./src/utils";
+import { Scope }                                                        from "./src/scope";
+import { default as program }                                           from "commander";
+import { simple_ts_ast, to_safe_string }                                from "./src/ts-symbols";
+import globby                                                           from "globby";
+import { primitive_init }                                               from "./src/types/primitives";
 
 const
     _options = {},
@@ -41,13 +41,17 @@ program
     .alias( 'p' )
     .description( 'parse files' )
     .option( "-n, --names <symbol> [symbols...]", "limit processing to these names" )
-    .option( "-l, --limit <count>", "limit porcessing to this number of symbols" )
+    .option( "-l, --lib <libfile> [libfiles...]", "libraries to read" )
     .option( "--loc", "include location information" )
     .option( "--jsdoc", "include JSDoc information" )
     .action( ( file, files, args ) => {
 
         log( 'symbol:', $( args.symbol ) );
         log( 'symbols:', $( args.symbols ) );
+        console.error( 'lib:', args.lib );
+        console.error( 'libfile:', args.libfile );
+        console.error( 'libfiles:', args.libfiles );
+        _options.libs = [ ...asArray( args.lib ) ].flatMap( ln => ln.split( ',' ).map( lnf => `node_modules/typescript/lib/lib.${lnf}.d.ts` ) );
         _options.files = [ file, ...files ];
         _options.verbose = args.verbose !== void 0 ? args.verbose : options.verbose;
         _options.symbols = [ ...( args.symbol ? [ args.symbol ] : [] ), ...( args.symbols || [] ) ];
@@ -91,7 +95,7 @@ primitive_init();
 
 async function process_all()
 {
-    const expanded = await globby( options.files );
+    const expanded = await globby( [ ...options.libs, ...options.files ] );
 
     const [ files ] = await Promise.all( expanded.map( simple_ts_ast ) );
     const filesRead = Object.keys( files );
@@ -122,6 +126,7 @@ async function process_all()
     }
     console.error( "STRINGIFY" );
     console.error( Scope.global.treeify() );
+    console.error( Scope.get_stats() );
     // console.error( `${Scope.global}` );
     // console.error( $( Scope.global, 6 ) );
 

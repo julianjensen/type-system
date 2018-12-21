@@ -15,8 +15,10 @@ import {
     CONSTRUCTOR,
     CALL,
     TYPE,
-    FORMAL, INDEX, CONTEXT
-}                                                                                   from "./utils";
+    FORMAL,
+    INDEX,
+    safe_obj, ANONYMOUS
+} from "./utils";
 import "./types/all-types";
 import { SyntaxKind }                                                               from "typescript";
 import {
@@ -31,9 +33,8 @@ import {
 import { Binding, create_bound_type, create_bound_variable, definition_resolution } from "./binding";
 import { ValueType }                                                                from "./value-type";
 import { Namespace }                                                                from "./types/abstract";
-import { member_decls, ObjectType }                                                 from "./types/object-type";
-import { TypeReference }                                                            from "./types/reference";
-import { ecma_binding, read_pattern }                                               from "./parse-pattern";
+import { member_decls }                                                             from "./types/object-type";
+import { binding_pattern, pattern_as_type_literal }                                 from "./parse-pattern";
 
 /**
  * @param {string|Symbol} name
@@ -84,10 +85,10 @@ export function declaration( def )
         case SyntaxKind.VariableDeclaration:
             /* @type {ts.VariableDeclaration} */
             const varDecl = def;
-            if ( varDecl.name.kind === SyntaxKind.ObjectBindingPattern )
+            if ( SyntaxKind[ varDecl.name.kind ].endsWith( 'Pattern' ) )
             {
-                console.error( ecma_binding( varDecl.name, varDecl.type ) );
-                process.exit();
+                binding_pattern( varDecl.name, varDecl.type );
+                return null;
             }
             return create_bound_variable( Scope.current, identifier( varDecl.name ), varDecl );
 
@@ -158,6 +159,9 @@ export function declaration( def )
         case SyntaxKind.Parameter:
             /** @type {ts.ParameterDeclaration} */
             const param = def;
+            if ( SyntaxKind[ param.name.kind ].endsWith( 'Pattern' ) )
+                return create_bound_type( Scope.current, ANONYMOUS, pattern_as_type_literal( param.name, param.type ), FORMAL );
+
             return create_bound_type( Scope.current, identifier( param.name ), param, FORMAL );
 
         case SyntaxKind.TypeAliasDeclaration:

@@ -48,12 +48,13 @@ export const set_error_node = node => errorNode = node;
 
 export const node_error = ( msg, node, opts ) => metaInfo.reporters.error( msg, node, opts );
 export const node_fatal = ( msg, node = errorNode, opts = {} ) => {
+    if ( !metaInfo || !metaInfo.reporters ) return;
     const r = metaInfo.reporters;
     const source = r.getSourceFileOfNode( node );
     const txt = r.getSourceTextOfNodeFromSourceFile( source, node );
 
     console.error( msg );
-    console.error( `${source.fileName}, line ${r.getLineNumberOfNode( node ) - 1}: ${txt}` );
+    if ( source ) console.error( `${source.fileName}, line ${r.getLineNumberOfNode( node ) - 1}: ${txt}` );
     if ( !opts.noThrow ) throw new Error( msg );
     // metaInfo.reporters.fatal( msg, node, opts );
 };
