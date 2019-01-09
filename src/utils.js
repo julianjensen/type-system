@@ -8,6 +8,9 @@
 import { type }       from "typeofs";
 import { SyntaxKind } from "typescript";
 
+export const wellKnownSymbols = [ 'iterator' ];
+
+
 const
     chalk       = require( 'chalk' ),
     sig         = require( 'signale' ),

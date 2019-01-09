@@ -88,6 +88,36 @@ export class NumericLiteralType extends LiteralType
 }
 
 /** */
+export class BigIntLiteralType extends LiteralType
+{
+    /**
+     * @param {string|number} valueName
+     */
+    constructor( valueName )
+    {
+        super( 'bigint', valueName );
+        valueMap.set( Number( valueName ), this );
+    }
+
+    /**
+     * @return {string}
+     */
+    toString()
+    {
+        return this.valueName.toString();
+    }
+
+    /**
+     * @param value
+     * @return {NumericLiteralType}
+     */
+    static byConstraint( value )
+    {
+        return valueMap.get( Number( value ) );
+    }
+}
+
+/** */
 export class BooleanLiteralType extends LiteralType
 {
     /**

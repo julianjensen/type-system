@@ -4,6 +4,9 @@
  * @since 0.0.1
  *******************************************************************************/
 
+import { Binding }     from "./binding";
+import { get_options, wellKnownSymbols } from "./utils";
+
 export const enum TypeFlags {
     Any                     = 1 << 0,
         Unknown                 = 1 << 1,
@@ -107,13 +110,130 @@ export const enum TypeFlags {
 // Note that this check ignores type parameters and only considers the
 // inheritance hierarchy.
 
+/**
+ * @extends Binding
+ */
+class TypeChecks extends Binding {
+    /**
+     * @return {boolean}
+     */
+    isAnyOrUnknown() {
+        const base = this.getBaseTypeAsString();
+
+        return base === 'any' || base === 'unknown';
+    }
+
+    isNever() {
+        return this.getBaseTypeAsString() === 'never';
+    }
+
+    isNull() {
+        return this.getBaseTypeAsString() === 'null';
+    }
+
+    isUndefined() {
+        return this.getBaseTypeAsString() === 'undefined';
+    }
+
+    isVoid() {
+        return this.getBaseTypeAsString() === 'void';
+    }
+
+    isNumber() {
+        return this.getBaseTypeAsString() === 'number';
+    }
+
+    isNumberLike() {
+        return this.isNumberLiteral() || this.isNumber();
+    }
+
+    isString() {
+        return this.getBaseTypeAsString() === 'string';
+    }
+
+    isStringLike() {
+        return this.isStringLiteral() || this.isString();
+    }
+
+    isStringLiteral() {
+        return this.valueType.typeName === 'literal' && this.getBaseTypeAsString() === 'string';
+    }
+
+    isNumberLiteral() {
+        return this.valueType.typeName === 'literal' && this.getBaseTypeAsString() === 'number';
+    }
+
+    isBooleanLiteral() {
+        return this.valueType.typeName === 'literal' && this.getBaseTypeAsString() === 'boolean';
+    }
+
+    isBigInt() {
+        return this.getBaseTypeAsString() === 'bigint';
+    }
+
+    isBigIntLike() {
+        return this.valueType.typeName === 'literal' && this.getBaseTypeAsString() === 'bigint' || this.isBigInt();
+    }
+
+    isBoolean() {
+        return this.getBaseTypeAsString() === 'boolean';
+    }
+
+    isBooleanLike() {
+        return this.isBoolean() || this.isBooleanLiteral();
+    }
+
+    isSymbol() {
+        return this.getBaseTypeAsString() === 'symbol';
+    }
+
+    isSymbolLike() {
+        return this.isSymbol();
+    }
+
+    isObject() {
+        return this.getBaseTypeAsString() === 'object';
+    }
+
+    isPrimitive() {
+        if ( this.valueType.typeName === 'literal' ) return true;
+
+        return [ 'string', 'number', 'bigint', 'boolean', 'void', 'undefined', 'null', 'symbol' ].includes( this.getBaseTypeAsString() );
+    }
+
+    isWellKnownSymbol() {
+        return this.getBaseTypeAsString() === 'symbol' && wellKnownSymbols.includes( this.symbolName );
+    }
+
+    /**
+     * @param {TypeChecks} target
+     * @param {string} relation
+     */
+    isSimpleTypeReltaedTo( target, relation ) {
+        const strictNullChecks = get_options().strictNullChecks;
+
+        if ( target.isAnyOrUnknown() || this.isNever() ) return true;
+        if ( target.isNever() ) return false;
+        if ( this.isStringLike() && target.isString() ) return true;
+        if ( this.isNumberLike() && target.isNumber() ) return true;
+        if ( this.isBigIntLike() && target.isBigInt() ) return true;
+        if ( this.isBooleanLike() && target.isBoolean() ) return true;
+        if ( this.isSymbolLike() && target.isSymbol() ) return true;
+        if ( this.isUndefined() && ( !strictNullChecks || target.isUndefined() || target.isVoid() ) ) return true;
+        if ( this.isNull() && ( !strictNullChecks || target.isNull() ) ) return true;
+        if ( this.isObject() && !target.isPrimitive() ) return true;
+
+    }
+}
 
 
 
 function isSimpleTypeRelatedTo(source, target, relation)
 {
+    /*
     const s = source.flags;
     const t = target.flags;
+
 
     if (t & TypeFlags.AnyOrUnknown || s & TypeFlags.Never || source === wildcardType) return true;
 
@@ -142,6 +262,7 @@ function isSimpleTypeRelatedTo(source, target, relation)
                                                                   isEnumTypeRelatedTo(getParentOfSymbol(source.symbol)!, getParentOfSymbol(target.symbol)!, errorReporter)) return true;
     }
     if (s & TypeFlags.Undefined && (!strictNullChecks || t & (TypeFlags.Undefined | TypeFlags.Void))) return true;
+    */
     if (s & TypeFlags.Null && (!strictNullChecks || t & TypeFlags.Null)) return true;
     if (s & TypeFlags.Object && t & TypeFlags.NonPrimitive) return true;
     if (s & TypeFlags.UniqueESSymbol || t & TypeFlags.UniqueESSymbol) return false;
